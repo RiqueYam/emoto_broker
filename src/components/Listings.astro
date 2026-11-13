@@ -10,49 +10,59 @@ const counts = tabCounts(listings);
 const countsBySlug = Object.fromEntries(TABS.map((t) => [tabSlug(t), counts[t]]));
 ---
 
-<main class="hairline-top" x-data="listings" data-counts={JSON.stringify(countsBySlug)}>
+<!--
+  Alpine scope is kept to the tabs and the Ver mais block (x-data). Card visibility is
+  one effect in src/scripts/listings.ts that toggles `hidden` on each column, so Alpine
+  never has to walk the 48 cards.
+-->
+<main class="hairline-top" id="listings" data-counts={JSON.stringify(countsBySlug)}>
   <div class="container listings__head">
-    <h2 class="section-title" id="todos-os-imoveis">Todos os imóveis</h2>
+    <h2 class="section-title" id="todos-os-imoveis">
+      Todos os imóveis
+    </h2>
     <p class="helper-line">Selecione um imóvel para conhecer todos os detalhes.</p>
   </div>
 
-  <div class="container type-tabs" role="group" aria-label="Filtrar imóveis por tipo e região">
-    {
-      TABS.map((t) => (
-        <button
-          type="button"
-          class="btn pill type-tab"
-          aria-pressed={t === 'Todos' ? 'true' : 'false'}
-          x-bind:aria-pressed={`tab === '${tabSlug(t)}' ? 'true' : 'false'`}
-          x-on:click={`select('${tabSlug(t)}')`}
-        >
-          {t} ({counts[t]})
-        </button>
-      ))
-    }
+  <div class="container type-tabs" role="group" aria-label="Filtrar imóveis por tipo e região" x-data>
+    {TABS.map((t) => (
+      <button
+        type="button"
+        class="btn pill type-tab"
+        aria-pressed={t === 'Todos' ? 'true' : 'false'}
+        x-bind:aria-pressed={`$store.listings.tab === '${tabSlug(t)}' ? 'true' : 'false'`}
+        x-on:click={`$store.listings.select('${tabSlug(t)}')`}
+      >
+        {t} ({counts[t]})
+      </button>
+    ))}
   </div>
 
   <section class="container listing-grid" id="lista-imoveis" aria-labelledby="todos-os-imoveis">
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 gy-5 gy-md-6" x-ref="grid">
-      {
-        listings.map((l) => (
-          <div
-            class="col card-col"
-            data-tipo={tabSlug(l.tipo)}
-            data-pre-m={l.index >= 6 ? '' : undefined}
-            data-pre-d={l.index >= 9 ? '' : undefined}
-            x-show={`visible('${tabSlug(l.tipo)}', ${l.index}, ${l.tabIndex})`}
-          >
-            <PropertyCard listing={l} eager={l.index === 0} />
-          </div>
-        ))
-      }
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 gy-5 gy-md-6" id="listing-grid">
+      {listings.map((l) => (
+        <div
+          class="col card-col"
+          data-tipo={tabSlug(l.tipo)}
+          data-i={l.index}
+          data-ti={l.tabIndex}
+          data-pre-m={l.index >= 6 ? '' : undefined}
+          data-pre-d={l.index >= 9 ? '' : undefined}
+        >
+          <PropertyCard listing={l} />
+        </div>
+      ))}
     </div>
   </section>
 
-  <div class="container more" x-cloak>
-    <span class="more__count" aria-live="polite" x-text="label"></span>
-    <button type="button" class="btn pill more__btn" x-show="hasMore" x-on:click="more()" aria-controls="lista-imoveis">
+  <div class="container more" x-data x-cloak>
+    <span class="more__count" aria-live="polite" x-text="$store.listings.label"></span>
+    <button
+      type="button"
+      class="btn pill more__btn"
+      x-show="$store.listings.hasMore"
+      x-on:click="$store.listings.more()"
+      aria-controls="lista-imoveis"
+    >
       Ver mais imóveis
     </button>
   </div>

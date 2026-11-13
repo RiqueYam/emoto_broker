@@ -40,7 +40,7 @@ const icon: Record<string, LiveIconName> = {
         width={730}
         height={487}
         fit="cover"
-        widths={[335, 365, 480, 670, 730]}
+        widths={[365, 670, 730]}
         sizes="(min-width: 1024px) 365px, (min-width: 768px) calc(50vw - 36px), calc(100vw - 40px)"
         quality={60}
         loading={eager ? 'eager' : 'lazy'}
@@ -48,19 +48,20 @@ const icon: Record<string, LiveIconName> = {
       />
     </div>
     <ul class="card-specs" aria-label="Características do imóvel">
-      {
-        l.specs.map((s) => (
-          <li>
-            <LiveIcon name={icon[s.kind]} />
-            <span>{s.text}</span>
-          </li>
-        ))
-      }
+      {l.specs.map((s) => (
+        <li>
+          <LiveIcon name={icon[s.kind]} />
+          <span>{s.text}</span>
+        </li>
+      ))}
     </ul>
     <div class="card-body">
       <h3 class="card-title">{l.titulo}</h3>
       <p class="card-code">Código: {l.codigo}</p>
-      <span class="card-more"><span>Clique para mais informações</span><LiveIcon name="arrow-right" /></span>
+      <span class="card-more">
+        <span>Clique para mais informações</span>
+        <LiveIcon name="arrow-right" />
+      </span>
     </div>
   </a>
   <WhatsAppButton href={l.waUrl} codigo={l.codigo} titulo={l.titulo} source="card" />

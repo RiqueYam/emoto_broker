@@ -157,10 +157,10 @@ picture {
     font-size: 0.68rem;
   }
   svg {
+    // No flex-shrink: 0 — on the live page the icon shrinks to 13.64 px when the pill wraps on mobile
     width: 14px;
     height: 14px;
     color: $bronze;
-    flex-shrink: 0;
   }
 }
 
@@ -274,6 +274,13 @@ picture {
     outline: 2px solid $bronze;
     outline-offset: 2px;
   }
+}
+
+// Skip layout and paint for cards outside the viewport (no visual change; `auto` keeps the
+// real height once a card has been rendered)
+.card-col {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 480px;
 }
 
 .listing-grid {

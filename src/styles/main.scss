@@ -1,19 +1,20 @@
 @import 'variables';
 
-// Bootstrap 5.3.8: only the parts this page uses
+// Bootstrap 5.3.8: only the parts this page uses.
+// The utilities API is left out on purpose: the page uses no utility classes and it
+// would add ~10 KB of render-blocking CSS. Nav is left out too: the type filter is a
+// group of aria-pressed buttons, as on the live page, not a nav.
 @import 'bootstrap/scss/functions';
 @import 'bootstrap/scss/variables';
 @import 'bootstrap/scss/variables-dark';
 @import 'bootstrap/scss/maps';
 @import 'bootstrap/scss/mixins';
-@import 'bootstrap/scss/utilities';
 @import 'bootstrap/scss/root';
 @import 'bootstrap/scss/reboot';
 @import 'bootstrap/scss/containers';
 @import 'bootstrap/scss/grid';
 @import 'bootstrap/scss/buttons';
 @import 'bootstrap/scss/helpers/visually-hidden';
-@import 'bootstrap/scss/utilities/api';
 
 @import 'site';
 @import 'selecao';

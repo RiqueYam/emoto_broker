@@ -2,23 +2,27 @@ import Splide from '@splidejs/splide';
 import '@splidejs/splide/css/core';
 import { track } from './track';
 
+const INTERVAL = 3500;
 const root = document.querySelector<HTMLElement>('#selecao');
 
-if (root) {
+/*
+ * Splide handles the slides, arrows, dots, ARIA, breakpoints and reduced motion.
+ * Autoplay is a small timer here instead of Splide's Autoplay component: Splide's
+ * version runs a requestAnimationFrame loop every frame while playing, which keeps the
+ * page from ever going idle (Lighthouse could not finish a run with it on).
+ */
+function mount(root: HTMLElement) {
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   const splide = new Splide(root, {
     type: 'slide',
     perMove: 1,
     rewind: true,
-    autoplay: true,
-    interval: 3500,
+    autoplay: false,
     speed: 700,
     easing: 'cubic-bezier(0.22,0.61,0.36,1)',
     fixedWidth: '365px',
     gap: '32px',
-    pauseOnHover: true,
-    pauseOnFocus: true,
     pagination: true,
     arrows: true,
     // One dot per reachable position: desktop 0–3, mobile 0–5 (spec §3)
@@ -36,8 +40,6 @@ if (root) {
       last: 'Ir para o último',
       slideX: 'Ir para o grupo %s',
       pageX: 'Ir para o grupo %s',
-      play: 'Iniciar rotação automática',
-      pause: 'Pausar rotação automática',
       carousel: 'carrossel',
       select: 'Escolha o grupo de imóveis',
       slide: 'imóvel',
@@ -55,42 +57,60 @@ if (root) {
     },
   });
 
-  const autoplay = () => splide.Components.Autoplay;
-
-  // Off-screen slides are inert so keyboard focus never lands on a hidden card
-  const syncInert = () => {
-    splide.Components.Slides.forEach(({ slide }) => {
-      slide.inert = !slide.classList.contains('is-visible');
-    });
+  // --- Autoplay: every 3.5 s, paused on hover, touch, focus inside, hidden tab, reduced motion
+  const paused = new Set<string>();
+  let timer: number | undefined;
+  const schedule = () => {
+    window.clearTimeout(timer);
+    timer = undefined;
+    if (reduce.matches || paused.size) return;
+    timer = window.setTimeout(() => splide.go('>'), INTERVAL);
   };
-  splide.on('mounted moved updated resized', syncInert);
+  const pause = (why: string) => {
+    paused.add(why);
+    schedule();
+  };
+  const resume = (why: string) => {
+    paused.delete(why);
+    schedule();
+  };
 
-  // Arrow and dot use (not autoplay) for analytics
+  // Any move (autoplay, arrows, dots, drag) restarts the 3.5 s timer
+  splide.on('moved', schedule);
+
+  const trackEl = root.querySelector<HTMLElement>('.splide__track')!;
+  trackEl.addEventListener('mouseenter', () => pause('hover'));
+  trackEl.addEventListener('mouseleave', () => resume('hover'));
+  trackEl.addEventListener('touchstart', () => pause('touch'), { passive: true });
+  trackEl.addEventListener('touchend', () => resume('touch'), { passive: true });
+  trackEl.addEventListener('touchcancel', () => resume('touch'), { passive: true });
+  root.addEventListener('focusin', () => pause('focus'));
+  root.addEventListener('focusout', (e) => {
+    if (!root.contains(e.relatedTarget as Node | null)) resume('focus');
+  });
+  document.addEventListener('visibilitychange', () => (document.hidden ? pause('hidden') : resume('hidden')));
+  reduce.addEventListener('change', schedule);
+
+  // --- Off-screen slides are inert so keyboard focus never lands on a hidden card
+  root.querySelectorAll<HTMLElement>('.splide__slide').forEach((s) => (s.inert = true));
+  splide.on('visible', ({ slide }) => (slide.inert = false));
+  splide.on('hidden', ({ slide }) => (slide.inert = true));
+
+  // --- Analytics: arrow and dot use only
   root.addEventListener('click', (e) => {
     if ((e.target as Element).closest('.splide__arrow, .selecao__dot'))
       requestAnimationFrame(() => track('carousel_nav', { position: splide.index }));
   });
 
-  // Pause while a finger touches the track
-  const track_ = root.querySelector('.splide__track')!;
-  let touching = false;
-  track_.addEventListener('touchstart', () => {
-    touching = true;
-    autoplay().pause();
-  }, { passive: true });
-  const endTouch = () => {
-    if (!touching) return;
-    touching = false;
-    if (!reduce.matches && !document.hidden) autoplay().play();
-  };
-  track_.addEventListener('touchend', endTouch, { passive: true });
-  track_.addEventListener('touchcancel', endTouch, { passive: true });
-
-  // Pause while the browser tab is hidden
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden) autoplay().pause();
-    else if (!reduce.matches && !touching) autoplay().play();
-  });
-
   splide.mount();
+  if (document.hidden) paused.add('hidden');
+  schedule();
+}
+
+if (root) {
+  // Mount off the critical path; the slides are already laid out by CSS
+  const run = () => mount(root);
+  // Safari has no requestIdleCallback
+  if (typeof window.requestIdleCallback === 'function') window.requestIdleCallback(run, { timeout: 1200 });
+  else setTimeout(run, 200);
 }

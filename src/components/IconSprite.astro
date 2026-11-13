@@ -1,0 +1,16 @@
+---
+import { ICON_PATHS } from '../lib/icons';
+---
+
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="0"
+  height="0"
+  style="position:absolute"
+  aria-hidden="true"
+  focusable="false"
+>
+  {Object.entries(ICON_PATHS).map(([name, paths]) => (
+    <symbol id={`i-${name}`} viewBox="0 0 24 24" set:html={paths} />
+  ))}
+</svg>

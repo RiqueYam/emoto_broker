@@ -5,6 +5,12 @@
   border-top: 1px solid $hairline;
 }
 
+// Splide core hides the root until mount; the layout is already final in CSS, so show it
+// straight away (Splide mounts on idle) and without JavaScript.
+.selecao.splide {
+  visibility: visible;
+}
+
 .selecao {
   padding: 40px 0 48px 20px; // mobile: track bleeds off the right edge
   @include media-breakpoint-up(md) {
@@ -81,6 +87,14 @@
   margin-top: 24px;
   @include media-breakpoint-up(md) {
     margin-top: 32px;
+  }
+}
+
+// Reserve the dots' height until Splide adds them, so nothing below shifts
+.selecao:not(.is-initialized) .splide__track {
+  margin-bottom: 44px; // 16 + 28
+  @include media-breakpoint-up(md) {
+    margin-bottom: 52px; // 28 + 24
   }
 }
 

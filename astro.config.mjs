@@ -8,11 +8,9 @@ export default defineConfig({
   output: 'static',
   // Static fallback (meta refresh). The host config adds the real 301.
   redirects: { '/imoveis': '/' },
-  integrations: [
-    icon(),
-    sitemap({ filter: (page) => !page.includes('/imoveis') }),
-  ],
-  build: { inlineStylesheets: 'auto' },
+  integrations: [icon(), sitemap({ filter: (page) => !page.includes('/imoveis') })],
+  // Inline the (small) stylesheet: saves a render-blocking round trip before the portrait paints
+  build: { inlineStylesheets: 'always' },
   image: { responsiveStyles: false },
   vite: {
     css: {
