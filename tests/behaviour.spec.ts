@@ -302,6 +302,22 @@ test.describe('Filters (tipo, bairro, quartos, vagas, área)', () => {
     await expect(count(page)).toHaveText(`Mostrando ${Math.min(n, 6)} de ${n}`);
   });
 
+  test('resizing across the breakpoint moves the filters between bar and sheet', async ({ page }) => {
+    test.skip(isMobile(page), 'starts on desktop');
+    await page.goto('/?tipo=casa');
+    await expect(page.locator('#filters-bar #filters-form')).toHaveCount(1);
+    await page.setViewportSize({ width: 375, height: 812 });
+    await expect(page.locator('#filters-sheet #filters-form')).toHaveCount(1);
+    await page.locator('.filters__open').click();
+    await expect(page.locator('#filters-sheet input[value="casa"]')).toBeChecked();
+    await expect(page.locator('#filters-sheet .filter[data-filter="bairro"] .filter__options')).toBeVisible();
+    await page.locator('.filters-sheet__close').click();
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await expect(page.locator('#filters-bar #filters-form')).toHaveCount(1);
+    await expect(page.locator('.filter[data-filter="tipo"] .filter__value')).toHaveText('Casa');
+    await expect(page.locator('details.filter[open]')).toHaveCount(0);
+  });
+
   test('desktop: Escape closes a dropdown and returns focus to it', async ({ page }) => {
     test.skip(isMobile(page), 'dropdowns are desktop only');
     await page.goto('/');

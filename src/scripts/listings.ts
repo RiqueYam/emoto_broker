@@ -179,15 +179,15 @@ if (root && grid && moreBox) {
   // --- Desktop dropdowns: one open at a time, close on outside click or Escape
   for (const d of details) {
     d.addEventListener('toggle', () => {
-      if (d.open && !sheet.open) for (const o of details) if (o !== d) o.open = false;
+      if (d.open && !mobile.matches) for (const o of details) if (o !== d) o.open = false;
     });
   }
   document.addEventListener('click', (e) => {
-    if (sheet.open) return;
+    if (mobile.matches) return;
     for (const d of details) if (d.open && !d.contains(e.target as Node)) d.open = false;
   });
   document.addEventListener('keydown', (e) => {
-    if (e.key !== 'Escape' || sheet.open) return;
+    if (e.key !== 'Escape' || mobile.matches) return;
     const open = details.find((d) => d.open);
     if (open) {
       open.open = false;
@@ -195,17 +195,20 @@ if (root && grid && moreBox) {
     }
   });
 
-  // --- Mobile sheet: the form moves into the dialog while it is open
+  // --- Mobile sheet. The form lives in the sheet on phones and in the bar on desktop; it moves
+  // only when the screen crosses the breakpoint, so opening and closing the sheet stay cheap.
+  function placeForm() {
+    const inSheet = mobile.matches;
+    if (inSheet && sheet.open) return;
+    (inSheet ? sheetBody : bar).append(form);
+    for (const d of details) d.open = inSheet;
+  }
   openBtn.addEventListener('click', () => {
-    sheetBody.append(form);
-    for (const d of details) d.open = true;
     sheet.showModal();
     document.documentElement.classList.add('filters-sheet-open');
   });
   sheet.addEventListener('close', () => {
     document.documentElement.classList.remove('filters-sheet-open');
-    bar.append(form);
-    for (const d of details) d.open = false;
     openBtn.focus();
   });
   sheet.querySelector('.filters-sheet__close')!.addEventListener('click', () => sheet.close());
@@ -221,6 +224,7 @@ if (root && grid && moreBox) {
   });
   mobile.addEventListener('change', () => {
     if (!mobile.matches && sheet.open) sheet.close();
+    placeForm();
   });
 
   button.addEventListener('click', () => {
@@ -247,6 +251,7 @@ if (root && grid && moreBox) {
     }
   });
 
+  placeForm();
   writeForm();
   recompute();
   render();
