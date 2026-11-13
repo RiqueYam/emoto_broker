@@ -3,8 +3,8 @@
 ## Waiting on a decision or an account
 
 - [ ] **Featured listings.** Edu confirms the six listings for "Seleção do Edu" and their order. The placeholders are 549404, 649403, 72911, 689204, 265678 and 352080, set in the `destaque`/`ordem` columns of `data/listings.csv`.
-- [ ] **GitHub repo.** Needed to push branch `feat/site-rebuild` (step 10). The `gh` CLI isn't installed on this machine. An HTTPS remote with your credentials works.
-- [ ] **Hosting.** Choose Vercel or Netlify and connect the GitHub repo. Both are configured: `vercel.json` and `netlify.toml` each carry the `/imoveis` → `/` 301 and the cache headers (hashed assets 1 year immutable, HTML not cached). Delete the one you don't use.
+- [x] **GitHub repo:** https://github.com/RiqueYam/emoto_broker (`main` = production, work on `feat/site-rebuild`).
+- [ ] **Hosting: Vercel** (chosen 2026-11-13; Netlify can be revisited later). `vercel.json` carries the `/imoveis` → `/` 301 and the cache headers (hashed assets 1 year immutable, HTML not cached). Still to do: import the GitHub repo in Vercel so every branch push gets a preview URL.
 - [ ] **Domain.** After the preview is approved, move edusoaresbroker.com.br from Lovable and check that old Instagram links to `/imoveis` still land on the page.
 - [ ] **Analytics.** Add it now (which needs a consent banner) or later. The events from spec §6 are already emitted to `window.dataLayer` if one exists (`src/scripts/track.ts`). Nothing is sent today.
 - [ ] **Listing updates.** For now, listings change by editing the CSV and redeploying.

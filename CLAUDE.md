@@ -98,7 +98,7 @@ Rules:
 - Record the commands here once the project exists: dev, build, preview, check.
 
 ## Commands
-Node ≥ 22.12 (Astro 6). Install with `npm ci`.
+Node 22.x (Astro 6; pinned in package.json `engines` so Vercel builds on 22). Install with `npm ci`.
 
 | Task | Command |
 |---|---|
