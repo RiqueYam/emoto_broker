@@ -1,0 +1,618 @@
+// Site pieces on top of Bootstrap. Values are the live page's computed styles (spec §2).
+// Breakpoints follow the live page: sm 640, md 768, lg 1024.
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+img,
+svg,
+picture {
+  display: block;
+}
+
+[x-cloak] {
+  display: none !important;
+}
+
+// Before Alpine starts, hide cards beyond the first batch so the list doesn't flash 48 cards.
+// Without JavaScript the .js class is never set, so every card shows.
+.js:not(.listings-ready) {
+  @include media-breakpoint-down(md) {
+    .card-col[data-pre-m] {
+      display: none;
+    }
+  }
+  @include media-breakpoint-up(md) {
+    .card-col[data-pre-d] {
+      display: none;
+    }
+  }
+}
+
+.hairline-top {
+  border-top: 1px solid $hairline;
+}
+
+// Shared type helpers
+.eyebrow {
+  margin: 0;
+  font-size: 0.62rem;
+  line-height: 1.5;
+  font-weight: 500;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: $bronze;
+  @include media-breakpoint-up(sm) {
+    font-size: 0.7rem;
+  }
+}
+
+.helper-line {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: $muted;
+  @include media-breakpoint-up(sm) {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+}
+
+.section-title {
+  margin: 0;
+  font-size: 28px;
+  line-height: 34px;
+  letter-spacing: -0.6px;
+  @include media-breakpoint-up(md) {
+    font-size: 44px;
+    line-height: 54px;
+    letter-spacing: -1px;
+  }
+}
+
+// Hero
+.hero {
+  text-align: center;
+  @include media-breakpoint-up(lg) {
+    text-align: left;
+  }
+}
+
+.hero__figure {
+  position: relative;
+  margin: 0;
+}
+
+.hero__img {
+  width: 100%;
+  height: 46vw;
+  min-height: 13rem;
+  max-height: 24rem;
+  object-fit: cover;
+  object-position: 50% 28%;
+  @include media-breakpoint-up(sm) {
+    max-height: 28rem;
+  }
+}
+
+.hero__fade {
+  pointer-events: none;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 5rem;
+  background-image: linear-gradient(rgba(0, 0, 0, 0) 0%, $paper 100%);
+  @include media-breakpoint-up(sm) {
+    height: 7rem;
+  }
+}
+
+.hero__block {
+  padding-top: 2rem;
+  padding-bottom: 2.25rem;
+  @include media-breakpoint-up(sm) {
+    padding-top: 3rem;
+    padding-bottom: 3.5rem;
+  }
+}
+
+.hero__name {
+  margin: 0;
+  font-size: 1.5rem;
+  line-height: 2rem;
+  letter-spacing: 0.01em;
+  @include media-breakpoint-up(sm) {
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+  }
+}
+
+.hero__role {
+  margin-top: 0.5rem;
+}
+
+.coelho-pill {
+  margin: 1.5rem 0 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: $border-radius-pill;
+  background: $ink;
+  color: $paper;
+  font-size: 0.62rem;
+  line-height: 1.5;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  box-shadow:
+    0 1px 3px 0 rgba(0, 0, 0, 0.1),
+    0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  @include media-breakpoint-up(sm) {
+    font-size: 0.68rem;
+  }
+  svg {
+    width: 14px;
+    height: 14px;
+    color: $bronze;
+    flex-shrink: 0;
+  }
+}
+
+.divider {
+  width: 3.5rem;
+  height: 1px;
+  background: $bronze;
+  margin: 2.5rem auto 0;
+  @include media-breakpoint-up(sm) {
+    margin-top: 3rem;
+  }
+  @include media-breakpoint-up(lg) {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
+.hero__title {
+  margin: 2rem 0 0;
+  font-size: 2rem;
+  line-height: 1.25;
+  letter-spacing: -0.025em;
+  @include media-breakpoint-up(sm) {
+    margin-top: 2.5rem;
+    font-size: 3rem;
+  }
+  @include media-breakpoint-up(lg) {
+    font-size: 3.75rem;
+  }
+}
+
+.hero__intro {
+  margin: 1.25rem auto 0;
+  max-width: 36rem;
+  font-size: 0.95rem;
+  line-height: 1.625;
+  color: $muted;
+  @include media-breakpoint-up(sm) {
+    margin-top: 1.5rem;
+    max-width: 42rem;
+    font-size: 1.125rem;
+  }
+  @include media-breakpoint-up(lg) {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
+// Todos os imóveis
+.listings__head {
+  padding-top: 40px;
+  @include media-breakpoint-up(md) {
+    padding-top: 64px;
+  }
+  .helper-line {
+    margin-top: 1rem;
+  }
+}
+
+.type-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding-top: 1.5rem;
+  padding-bottom: 2rem;
+  @include media-breakpoint-up(sm) {
+    gap: 0.75rem;
+    padding-bottom: 2.5rem;
+  }
+}
+
+// Pill button base shared by tabs, Ver mais and the WhatsApp button
+.pill {
+  --bs-btn-padding-x: 1rem;
+  --bs-btn-padding-y: 0.5rem;
+  --bs-btn-font-size: 0.68rem;
+  --bs-btn-line-height: 1.5;
+  --bs-btn-border-radius: #{$border-radius-pill};
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  @include media-breakpoint-up(sm) {
+    --bs-btn-font-size: 0.75rem;
+    --bs-btn-line-height: 1rem;
+  }
+}
+
+.type-tab {
+  --bs-btn-color: #{$muted};
+  --bs-btn-bg: transparent;
+  --bs-btn-border-color: #{$hairline};
+  --bs-btn-hover-color: #{$ink};
+  --bs-btn-hover-bg: transparent;
+  --bs-btn-hover-border-color: #{$bronze};
+  --bs-btn-active-color: #{$ink};
+  --bs-btn-active-bg: transparent;
+  --bs-btn-active-border-color: #{$bronze};
+  cursor: default;
+  &[aria-pressed='true'] {
+    --bs-btn-color: #{$paper};
+    --bs-btn-bg: #{$ink};
+    --bs-btn-border-color: #{$ink};
+    --bs-btn-hover-color: #{$paper};
+    --bs-btn-hover-bg: #{$ink};
+    --bs-btn-hover-border-color: #{$ink};
+    --bs-btn-active-color: #{$paper};
+    --bs-btn-active-bg: #{$ink};
+    --bs-btn-active-border-color: #{$ink};
+  }
+  &:focus-visible {
+    outline: 2px solid $bronze;
+    outline-offset: 2px;
+  }
+}
+
+.listing-grid {
+  padding-bottom: 48px;
+  @include media-breakpoint-up(md) {
+    padding-bottom: 56px;
+  }
+}
+
+.more {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 64px;
+  @include media-breakpoint-up(md) {
+    gap: 14px;
+    padding-bottom: 96px;
+  }
+}
+
+.more__count {
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 2.16px;
+  text-transform: uppercase;
+  color: $muted;
+}
+
+.more__btn {
+  --bs-btn-padding-x: 2rem;
+  --bs-btn-padding-y: 0;
+  --bs-btn-color: #{$ink};
+  --bs-btn-bg: transparent;
+  --bs-btn-border-color: #{$ink};
+  --bs-btn-hover-color: #{$paper};
+  --bs-btn-hover-bg: #{$ink};
+  --bs-btn-hover-border-color: #{$ink};
+  --bs-btn-active-color: #{$paper};
+  --bs-btn-active-bg: #{$ink};
+  --bs-btn-active-border-color: #{$ink};
+  min-height: 48px;
+  &:focus-visible {
+    outline: 2px solid $bronze;
+    outline-offset: 2px;
+  }
+}
+
+// Property card
+.card-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.card-link {
+  display: block;
+  width: 100%;
+  border-radius: $border-radius;
+  color: $ink;
+  &:hover {
+    color: $ink;
+  }
+  &:focus-visible {
+    outline: 2px solid $bronze;
+    outline-offset: 4px;
+  }
+}
+
+.card-photo {
+  overflow: hidden;
+  border-radius: $border-radius;
+  background: $placeholder;
+  img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+    transition: transform 0.9s cubic-bezier(0, 0, 0.2, 1);
+  }
+}
+
+.card-link:hover .card-photo img {
+  transform: scale(1.04);
+}
+
+.card-specs {
+  list-style: none;
+  margin: 1rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  min-height: 1.25rem;
+  column-gap: 1rem;
+  row-gap: 0.5rem;
+  font-size: 0.75rem;
+  line-height: 1.625;
+  color: $muted;
+  li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+  }
+  svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    color: $bronze;
+  }
+}
+
+.card-body {
+  padding-top: 1rem;
+}
+
+.card-title {
+  margin: 0;
+  font-size: 1.25rem;
+  line-height: 1.375;
+  letter-spacing: -0.025em;
+  @include media-breakpoint-up(sm) {
+    font-size: 1.375rem;
+  }
+}
+
+.card-code {
+  margin: 0.5rem 0 0;
+  font-size: 0.7rem;
+  line-height: 1.5;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: $muted;
+}
+
+.card-more {
+  margin-top: 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  > span {
+    padding-bottom: 0.125rem;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  svg {
+    width: 16px;
+    height: 16px;
+    color: $bronze;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+.card-link:hover .card-more {
+  > span {
+    border-bottom-color: $bronze;
+  }
+  svg {
+    transform: translateX(0.25rem);
+  }
+}
+
+// WhatsApp button under every card (spec §5)
+.wa-btn {
+  --bs-btn-padding-x: 0;
+  --bs-btn-padding-y: 0;
+  --bs-btn-font-size: 10.88px;
+  --bs-btn-line-height: 16.32px;
+  --bs-btn-color: #{$paper};
+  --bs-btn-bg: #{$ink};
+  --bs-btn-border-color: #{$ink};
+  --bs-btn-hover-color: #{$paper};
+  --bs-btn-hover-bg: #000;
+  --bs-btn-hover-border-color: #000;
+  --bs-btn-active-color: #{$paper};
+  --bs-btn-active-bg: #000;
+  --bs-btn-active-border-color: #000;
+  margin-top: 20px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 20px 0 8px;
+  letter-spacing: 1.52px;
+  text-transform: uppercase;
+  @include media-breakpoint-up(sm) {
+    --bs-btn-font-size: 12px;
+    --bs-btn-line-height: 16px;
+    letter-spacing: 1.68px;
+  }
+  &:focus-visible {
+    outline: 2px solid $bronze;
+    outline-offset: 2px;
+  }
+}
+
+.wa-btn__disc {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  border-radius: $border-radius-pill;
+  background: $wa-green;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  svg {
+    width: 15px;
+    height: 15px;
+  }
+}
+
+// Footer
+.site-footer {
+  border-top: 1px solid $hairline;
+}
+
+.site-footer__inner {
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+  text-align: center;
+  @include media-breakpoint-up(sm) {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+  }
+}
+
+.site-footer__name {
+  margin: 0;
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+  span {
+    color: $muted;
+  }
+}
+
+.site-footer__sub {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: $muted;
+}
+
+.site-footer__about {
+  margin: 1rem auto 0;
+  max-width: 28rem;
+  font-size: 0.875rem;
+  line-height: 1.625;
+  color: $muted;
+}
+
+.site-footer__links {
+  margin-top: 1.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: $ink;
+    transition: color 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    &:hover {
+      color: $bronze;
+    }
+  }
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.site-footer__creci {
+  margin-top: 1.75rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: $muted;
+}
+
+// Floating WhatsApp
+.wa-float {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  z-index: 50;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: $border-radius-pill;
+  background: $wa-green;
+  color: $wa-glyph;
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.2),
+    0 4px 6px -4px rgba(0, 0, 0, 0.2);
+  transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  &:hover {
+    color: $wa-glyph;
+    transform: scale(1.05);
+  }
+  &:focus-visible {
+    outline: 2px solid $bronze;
+    outline-offset: 2px;
+  }
+  svg {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-photo img,
+  .card-more svg,
+  .wa-float {
+    transition: none;
+  }
+}
+
+// Ver mais: cards appear with a fade
+.card-col.is-new {
+  animation: card-in 0.5s ease-out both;
+}
+@keyframes card-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .card-col.is-new {
+    animation: none;
+  }
+}

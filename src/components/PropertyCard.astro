@@ -1,0 +1,67 @@
+---
+import { Picture } from 'astro:assets';
+import type { ListingView } from '../lib/listings';
+import type { LiveIconName } from '../lib/icons';
+import LiveIcon from './LiveIcon.astro';
+import WhatsAppButton from './WhatsAppButton.astro';
+
+interface Props {
+  listing: ListingView;
+  eager?: boolean;
+}
+const { listing: l, eager = false } = Astro.props;
+
+const icon: Record<string, LiveIconName> = {
+  area: 'ruler',
+  land: 'trees',
+  bed: 'bed-double',
+  bath: 'bath',
+  car: 'car-front',
+};
+---
+
+<article class="card-item">
+  <a
+    class="card-link"
+    href={l.coelhoUrl}
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label={`Abrir ${l.titulo} (código ${l.codigo}) no site Coelho da Fonseca`}
+    data-track="coelho_click"
+    data-source="card"
+    data-codigo={l.codigo}
+  >
+    <div class="card-photo">
+      <Picture
+        src={l.photo}
+        alt={`${l.titulo} — código ${l.codigo}`}
+        formats={['avif', 'webp']}
+        fallbackFormat="webp"
+        width={730}
+        height={487}
+        fit="cover"
+        widths={[335, 365, 480, 670, 730]}
+        sizes="(min-width: 1024px) 365px, (min-width: 768px) calc(50vw - 36px), calc(100vw - 40px)"
+        quality={60}
+        loading={eager ? 'eager' : 'lazy'}
+        decoding="async"
+      />
+    </div>
+    <ul class="card-specs" aria-label="Características do imóvel">
+      {
+        l.specs.map((s) => (
+          <li>
+            <LiveIcon name={icon[s.kind]} />
+            <span>{s.text}</span>
+          </li>
+        ))
+      }
+    </ul>
+    <div class="card-body">
+      <h3 class="card-title">{l.titulo}</h3>
+      <p class="card-code">Código: {l.codigo}</p>
+      <span class="card-more"><span>Clique para mais informações</span><LiveIcon name="arrow-right" /></span>
+    </div>
+  </a>
+  <WhatsAppButton href={l.waUrl} codigo={l.codigo} titulo={l.titulo} source="card" />
+</article>

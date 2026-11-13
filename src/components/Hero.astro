@@ -1,0 +1,45 @@
+---
+import LiveIcon from './LiveIcon.astro';
+import { PORTRAIT_SIZES } from '../lib/portrait';
+
+interface Props {
+  portrait: { avif: string; webp: string; fallback: string; width: number; height: number };
+}
+const { portrait } = Astro.props;
+---
+
+<header class="hero">
+  <figure class="hero__figure">
+    <picture>
+      <source type="image/avif" srcset={portrait.avif} sizes={PORTRAIT_SIZES} />
+      <source type="image/webp" srcset={portrait.webp} sizes={PORTRAIT_SIZES} />
+      <img
+        class="hero__img"
+        src={portrait.fallback}
+        alt="Edu Soares, Private Broker"
+        width={portrait.width}
+        height={portrait.height}
+        loading="eager"
+        fetchpriority="high"
+        decoding="async"
+      />
+    </picture>
+    <div class="hero__fade" aria-hidden="true"></div>
+    <figcaption class="visually-hidden">Edu Soares · CRECI: 310960</figcaption>
+  </figure>
+  <div class="container hero__block">
+    <p class="hero__name">EDU SOARES</p>
+    <p class="eyebrow hero__role">Private Broker</p>
+    <p class="coelho-pill"><LiveIcon name="badge-check" />Corretor associado à Coelho da Fonseca</p>
+    <div class="divider"></div>
+    <h1 class="hero__title">
+      Imóveis Selecionados<span class="visually-hidden">
+        — Imóveis de alto padrão à venda em São Paulo e Alphaville</span
+      >
+    </h1>
+    <p class="hero__intro">
+      Uma curadoria de imóveis exclusivos em São Paulo. Explore as oportunidades e descubra seu próximo
+      endereço.
+    </p>
+  </div>
+</header>

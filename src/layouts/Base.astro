@@ -1,0 +1,85 @@
+---
+import '@fontsource/inter/latin-400.css';
+import '@fontsource/inter/latin-500.css';
+// The live page loads Playfair 500 only and asks for 400, so browsers render the 500 face. Same here.
+import '@fontsource/playfair-display/latin-500.css';
+import interRegular from '@fontsource/inter/files/inter-latin-400-normal.woff2?url';
+import playfair500 from '@fontsource/playfair-display/files/playfair-display-latin-500-normal.woff2?url';
+import '../styles/main.scss';
+import { DESCRIPTION, INSTAGRAM_URL, OG_DESCRIPTION, SITE_URL, TITLE } from '../lib/site';
+import { PORTRAIT_SIZES } from '../lib/portrait';
+
+interface Props {
+  portraitAvif: string;
+}
+const { portraitAvif } = Astro.props;
+const canonical = new URL('/', SITE_URL).href;
+const ogImage = new URL('/og-image.jpg', SITE_URL).href;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'RealEstateAgent',
+  name: 'Edu Soares | Private Broker',
+  alternateName: 'Carlos Eduardo Soares',
+  description: OG_DESCRIPTION,
+  url: canonical,
+  image: ogImage,
+  telephone: '+55 11 96194-2319',
+  identifier: { '@type': 'PropertyValue', propertyID: 'CRECI', value: '310960' },
+  memberOf: { '@type': 'Organization', name: 'Coelho da Fonseca', url: 'https://www.coelhodafonseca.com.br' },
+  areaServed: [
+    { '@type': 'City', name: 'São Paulo' },
+    { '@type': 'Place', name: 'Alphaville' },
+  ],
+  address: { '@type': 'PostalAddress', addressLocality: 'São Paulo', addressRegion: 'SP', addressCountry: 'BR' },
+  sameAs: [INSTAGRAM_URL],
+};
+---
+
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script is:inline>document.documentElement.classList.add('js');</script>
+    <title>{TITLE}</title>
+    <meta name="description" content={DESCRIPTION} />
+    <meta name="author" content="Edu Soares" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href={canonical} />
+    <link
+      rel="preload"
+      as="image"
+      type="image/avif"
+      imagesrcset={portraitAvif}
+      imagesizes={PORTRAIT_SIZES}
+      fetchpriority="high"
+    />
+    <link rel="preload" as="font" type="font/woff2" href={interRegular} crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href={playfair500} crossorigin />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#FFFDF9" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:site_name" content="Edu Soares | Private Broker" />
+    <meta property="og:title" content={TITLE} />
+    <meta property="og:description" content={OG_DESCRIPTION} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Edu Soares, Private Broker — Imóveis Selecionados" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={TITLE} />
+    <meta name="twitter:description" content={OG_DESCRIPTION} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
