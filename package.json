@@ -1,0 +1,41 @@
+{
+  "name": "edu-soares-site",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check && prettier --check .",
+    "format": "prettier --write .",
+    "fetch-images": "tsx scripts/fetch-images.ts",
+    "test:visual": "playwright test",
+    "lhci": "lhci autorun"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "3.7.4",
+    "@fontsource/inter": "5.3.0",
+    "@fontsource/playfair-display": "5.3.0",
+    "@splidejs/splide": "4.1.4",
+    "alpinejs": "3.17.5",
+    "astro": "6.4.8",
+    "astro-icon": "1.2.0",
+    "bootstrap": "5.3.8",
+    "sharp": "0.35.5"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.12",
+    "@iconify-json/bi": "1.2.7",
+    "@iconify-json/lucide": "1.2.154",
+    "@lhci/cli": "0.16.1",
+    "@playwright/test": "1.65.0",
+    "@types/alpinejs": "3.17.0",
+    "csv-parse": "7.0.3",
+    "prettier": "3.10.1",
+    "prettier-plugin-astro": "1.1.2",
+    "sass": "1.108.2",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3"
+  }
+}

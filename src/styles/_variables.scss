@@ -1,0 +1,81 @@
+// Bootstrap 5.3.8 overrides: spec §2 values, measured on the live page.
+
+// Palette
+$ink: #1d1d1f;
+$paper: #fffdf9;
+$muted: #5f5748;
+$bronze: #836731;
+$hairline: #e4ddcf;
+$placeholder: #f4ecdd;
+$wa-green: #308639;
+$wa-glyph: #fcfcfc;
+$dot-inactive: #c9bfac;
+
+$primary: $ink;
+$body-bg: $paper;
+$body-color: $ink;
+$link-color: $ink;
+$link-decoration: none;
+$link-hover-color: $bronze;
+$border-color: $hairline;
+
+// Type: base 16/24
+$font-family-sans-serif: 'Inter', system-ui, sans-serif;
+$font-family-serif: 'Playfair Display', Georgia, serif;
+$font-size-base: 1rem;
+$line-height-base: 1.5;
+$headings-font-family: $font-family-serif;
+$headings-font-weight: 400;
+$headings-line-height: 1.25;
+$headings-margin-bottom: 0;
+$paragraph-margin-bottom: 0;
+
+// Radii
+$border-radius: 6px;
+$border-radius-pill: 9999px;
+
+// Breakpoints and container match the live page (Tailwind scale; container 1200 px with 20 px padding)
+$grid-breakpoints: (
+  xs: 0,
+  sm: 640px,
+  md: 768px,
+  lg: 1024px,
+  xl: 1280px,
+  xxl: 1536px,
+);
+$container-max-widths: (
+  sm: 1200px,
+  md: 1200px,
+  lg: 1200px,
+  xl: 1200px,
+  xxl: 1200px,
+);
+$grid-gutter-width: 2rem; // 32 px column gap
+$container-padding-x: 2.5rem; // Bootstrap uses half: 20 px
+
+// Extra spacers for the measured gaps
+$spacer: 1rem;
+$spacers: (
+  0: 0,
+  1: $spacer * 0.25,
+  2: $spacer * 0.5,
+  3: $spacer,
+  4: $spacer * 1.5,
+  5: $spacer * 3,
+  6: $spacer * 4,
+);
+
+// Buttons: base only; pill variants are custom classes
+$btn-font-family: $font-family-sans-serif;
+$btn-font-weight: 500;
+$btn-border-width: 1px;
+$btn-border-radius: $border-radius-pill;
+$btn-focus-box-shadow: none;
+$btn-transition:
+  color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+  background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+  border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+$enable-smooth-scroll: false;
+$enable-negative-margins: false;
+$enable-dark-mode: false;
