@@ -53,7 +53,7 @@ h1{margin-top:20px;font-family:'Playfair Display';font-weight:500;font-size:56px
 font-size:13px;font-weight:500;letter-spacing:.14em;text-transform:uppercase}</style>
 <body><div class="ph"></div><div class="fade"></div>
 <div class="t"><p class="n">${BROKER.name.toUpperCase()}</p><p class="r">Private Broker</p><div class="d"></div><h1>Imóveis Selecionados</h1></div>
-<p class="c">Corretor associado à Coelho da Fonseca</p></body>`;
+<p class="c">Corretora associada à Coelho da Fonseca</p></body>`;
 
 const browser = await chromium.launch();
 const shot = async (html: string, w: number, h: number, type: 'png' | 'jpeg' = 'png') => {

@@ -78,16 +78,20 @@ test('header text block is identical to the live page (below the image, above th
   const [a, b] = await Promise.all([live.screenshot(), page.screenshot()]);
   await mkdir(OUT, { recursive: true });
   await sharp(a).toFile(`${OUT}/live-${info.project.name}-fold.png`);
-  // The broker's name differs from the live page on purpose (Edu Soares → Eliane Emoto); skip that line
-  const name = await page.locator('.hero__name').evaluate((el) => {
-    const r = el.getBoundingClientRect();
-    return [Math.floor(r.top) - 2, Math.ceil(r.bottom) + 2] as [number, number];
-  });
+  // The name (Edu Soares → Eliane Emoto) and the pill wording (corretor → corretora) differ from
+  // the live page on purpose; skip those lines
+  const rows = (sel: string) =>
+    page.locator(sel).evaluate((el) => {
+      const r = el.getBoundingClientRect();
+      return [Math.floor(r.top) - 2, Math.ceil(r.bottom) + 2] as [number, number];
+    });
+  const name = await rows('.hero__name');
+  const pill = await rows('.coelho-pill');
   // The top image is switchable (HERO in src/lib/site.ts) and no longer Edu's portrait; skip it too
   const figureBottom = await page
     .locator('.hero__figure')
     .evaluate((el) => Math.ceil(el.getBoundingClientRect().bottom));
-  const ratio = await diffRatio(a, b, width, bottom, [[0, figureBottom], name]);
+  const ratio = await diffRatio(a, b, width, bottom, [[0, figureBottom], name, pill]);
   console.log(`${info.project.name}: ${(ratio * 100).toFixed(3)}% of header pixels differ`);
   expect(ratio).toBeLessThan(0.002);
   await live.close();

@@ -99,6 +99,25 @@ test.describe('Seleção carousel (spec §3)', () => {
     }
   });
 
+  test('keeps advancing after a click on a dot; keyboard focus still pauses', async ({ page }) => {
+    await page.goto('/');
+    await mounted(page);
+    // A click leaves focus on the dot; that must not stop autoplay
+    await page.locator('.selecao__dot').nth(1).click();
+    await page.mouse.move(0, 0);
+    await expect(activeDot(page)).toHaveAttribute('aria-label', /2$/);
+    await page.waitForTimeout(4300);
+    await expect(activeDot(page)).toHaveAttribute('aria-label', /3$/);
+    // Keyboard focus inside the carousel does pause it
+    await page.locator('body').click({ position: { x: 1, y: 1 } });
+    await page.keyboard.press('Shift+Tab'); // keyboard modality, so the next focus is :focus-visible
+    await page.locator('.selecao__dot').first().focus();
+    await expect(activeDot(page)).toHaveAttribute('aria-label', /3$/);
+    const before = await activeDot(page).getAttribute('aria-label');
+    await page.waitForTimeout(4500);
+    await expect(activeDot(page)).toHaveAttribute('aria-label', before!);
+  });
+
   test('off-screen slides are inert', async ({ page }) => {
     await page.goto('/');
     await mounted(page);

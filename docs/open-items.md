@@ -2,19 +2,19 @@
 
 ## Rename to Eliane Emoto (2026-11-13)
 
-The name now comes from `BROKER` in `src/lib/site.ts`: hero, footer, title, meta, JSON-LD, the WhatsApp messages ("Olá, Eliane."), the Seleção title ("Seleção de Eliane"), the "EE" monogram and the sharing image. Still the previous broker's, and **must be replaced before anything goes public**:
+The name now comes from `BROKER` in `src/lib/site.ts`: hero, footer, title, meta, JSON-LD, the WhatsApp messages ("Olá, Eliane."), the Seleção title ("Seleção da Eliane"), the "EE" monogram and the sharing image. On 2026-11-14 her WhatsApp, Instagram, Coelho broker ID and the feminine wording went in. Still open:
 
 The step-by-step order for all of this is in **`docs/next-steps.md`**.
 
 - [ ] **Top image.** Edu's portrait is no longer used. The page shows a warm-dark placeholder panel until `HERO.file` in `src/lib/site.ts` names a photo in `src/assets/hero/`. The switch was tested with a sample photo (preload, alt and crop all work). Edu's original stays in `src/assets/portrait/` until Eliane's is in; then delete it.
-- [ ] **WhatsApp number** (`BROKER.whatsapp`). Every WhatsApp button would currently send leads to Edu.
-- [ ] **CRECI** (`BROKER.creci`), shown in the footer and the metadata.
-- [ ] **Instagram** (`BROKER.instagram`).
-- [ ] **Domain** (`SITE_URL`, plus `public/robots.txt` and `site` in `astro.config.mjs`).
-- [ ] **Coelho da Fonseca broker ID** (`BROKER.coelhoId`, currently Edu's `18039`). Every `coelho_url` in `data/listings.csv` must contain `corretor=<id>`, or the build stops. `null` turns the check off. See "Changing the card link" below.
-- [ ] **Listings.** The 48 listings and photos are Edu's portfolio. Confirm whether Eliane's are the same.
-- [ ] **Wording.** "Corretor associado à Coelho da Fonseca" (hero pill, footer, descriptions) uses the masculine "corretor". "Corretora associada" would be the feminine form. The copy is unchanged until you confirm which Eliane uses. Same for "Seleção de Eliane" (kept neutral instead of "da Eliane").
-- [ ] **Live-page comparison.** `tests/visual.spec.ts` still compares against Edu's live page and skips the name line. Point `LIVE` elsewhere or drop that test once the old page is retired.
+- [x] **WhatsApp number** (`BROKER.whatsapp`): 5511943922721.
+- [ ] **CRECI** (`BROKER.creci`), shown in the footer and the metadata. Still Edu's `310960`; Eliane's is pending.
+- [x] **Instagram** (`BROKER.instagram`): https://www.instagram.com/elianeemoto_broker.
+- [ ] **Domain** (`SITE_URL`, plus `public/robots.txt` and `site` in `astro.config.mjs`). Not available yet.
+- [x] **Coelho da Fonseca broker ID** (`BROKER.coelhoId`): `18038`, replaced in all 48 `coelho_url` values. Every `coelho_url` must contain `corretor=<id>`, or the build stops. `null` turns the check off. See "Changing the card link" below.
+- [x] **Listings.** The same 48 listings stay (confirmed 2026-11-14).
+- [x] **Wording.** Feminine forms: "Corretora associada à Coelho da Fonseca" (hero pill, footer, descriptions, sharing image) and "Seleção da Eliane".
+- [ ] **Live-page comparison.** `tests/visual.spec.ts` still compares against Edu's live page and skips the name and "Corretora" lines. Point `LIVE` elsewhere or drop that test once the old page is retired.
 
 ## Changing the card link ("Clique para mais informações")
 
@@ -28,7 +28,7 @@ The link's accessible name ("Abrir … no site Coelho da Fonseca", `PropertyCard
 
 ## Waiting on a decision or an account
 
-- [ ] **Featured listings.** Edu confirms the six listings for "Seleção do Edu" and their order. The placeholders are 549404, 649403, 72911, 689204, 265678 and 352080, set in the `destaque`/`ordem` columns of `data/listings.csv`.
+- [ ] **Featured listings.** Eliane confirms the six listings for "Seleção da Eliane" and their order. The placeholders are 549404, 649403, 72911, 689204, 265678 and 352080, set in the `destaque`/`ordem` columns of `data/listings.csv`.
 - [x] **GitHub repo:** https://github.com/RiqueYam/emoto_broker (`main` = production, work on `feat/site-rebuild`).
 - [ ] **Hosting: Vercel** (chosen 2026-11-13; Netlify can be revisited later). `vercel.json` carries the `/imoveis` → `/` 301 and the cache headers (hashed assets 1 year immutable, HTML not cached). Still to do: import the GitHub repo in Vercel so every branch push gets a preview URL.
 - [ ] **Domain.** After the preview is approved, move edusoaresbroker.com.br from Lovable and check that old Instagram links to `/imoveis` still land on the page.
@@ -82,6 +82,10 @@ Local Lighthouse scores depend heavily on how fast this machine's CPU is at the 
 
 ## Vercel setup
 
-- `emotobroker.vercel.app` serves the deployment of `feat/site-rebuild` at commit `5d0b934`. Later pushes build as previews, which Vercel Authentication protects, so automated checks and Edu can't open them.
-- [ ] **`/imoveis/` (trailing slash)** still answered 200 on `5d0b934`. The fix (commit `e9fe0ad`, explicit rules in `vercel.json`) built successfully but sits on a protected preview. To verify it, either turn off Vercel Authentication (Settings → Deployment Protection) or promote that deployment.
+- `emotobroker.vercel.app` follows `feat/site-rebuild`, and Vercel Authentication is off, so preview links are public.
+- [x] **`/imoveis/` (trailing slash)** answers 301 → `/` (verified 2026-11-13, with `/imoveis` and `/imoveis/x`).
 - `main` fails to build on Vercel because it holds only the pack (no `package.json`). That's expected until the site is merged into `main` after approval.
+
+## Carousel autoplay (2026-11-14)
+
+Reported as not advancing on its own. On the preview it advanced every 3.5 s in a clean browser, so the stop came from one of its pause rules. One of them was too eager: a mouse click or tap on an arrow or dot left focus there, and "pause while focus is inside" then held it until the visitor clicked elsewhere. Now only keyboard focus (`:focus-visible`) pauses it, and a test covers it. It still pauses, by design (spec §3), while the mouse is over the cards, while a finger is on them, in a background tab, and not at all when the device asks for reduced motion (Windows "Animation effects" off, iPhone "Reduce Motion", Android "Remove animations").

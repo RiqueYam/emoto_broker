@@ -85,7 +85,12 @@ function mount(root: HTMLElement) {
   trackEl.addEventListener('touchstart', () => pause('touch'), { passive: true });
   trackEl.addEventListener('touchend', () => resume('touch'), { passive: true });
   trackEl.addEventListener('touchcancel', () => resume('touch'), { passive: true });
-  root.addEventListener('focusin', () => pause('focus'));
+  // Only keyboard focus pauses: a click or tap on an arrow or dot leaves focus on it,
+  // which would otherwise stop autoplay until the visitor clicks somewhere else.
+  root.addEventListener('focusin', (e) => {
+    if ((e.target as Element).matches(':focus-visible')) pause('focus');
+    else resume('focus');
+  });
   root.addEventListener('focusout', (e) => {
     if (!root.contains(e.relatedTarget as Node | null)) resume('focus');
   });
