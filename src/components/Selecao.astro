@@ -3,6 +3,7 @@ import { Picture } from 'astro:assets';
 import { Icon } from 'astro-icon/components';
 import type { ListingView } from '../lib/listings';
 import WhatsAppButton from './WhatsAppButton.astro';
+import { BROKER } from '../lib/site';
 
 interface Props {
   items: ListingView[];
@@ -11,11 +12,11 @@ const { items } = Astro.props;
 ---
 
 <div class="selecao-wrap">
-  <section class="splide selecao" id="selecao" aria-label="Seleção do Edu">
+  <section class="splide selecao" id="selecao" aria-label={BROKER.selecaoTitle}>
     <div class="selecao__head">
       <div>
         <p class="eyebrow">Curadoria</p>
-        <h2 class="section-title">Seleção do Edu</h2>
+        <h2 class="section-title">{BROKER.selecaoTitle}</h2>
       </div>
       <div class="splide__arrows selecao__arrows">
         <button type="button" class="splide__arrow splide__arrow--prev selecao__arrow" aria-label="Anterior">

@@ -1,13 +1,13 @@
 ---
 import LiveIcon from './LiveIcon.astro';
 import { genericWaUrl } from '../lib/whatsapp';
-import { INSTAGRAM_URL } from '../lib/site';
+import { BROKER, INSTAGRAM_URL } from '../lib/site';
 ---
 
 <footer class="site-footer">
   <div class="container site-footer__inner">
     <p class="site-footer__name">
-      Edu Soares <span>|</span> Private Broker
+      {BROKER.name} <span>|</span> Private Broker
     </p>
     <p class="site-footer__sub">Corretor associado à Coelho da Fonseca</p>
     <p class="site-footer__about">Atendimento personalizado no mercado imobiliário de alto padrão.</p>
@@ -27,6 +27,6 @@ import { INSTAGRAM_URL } from '../lib/site';
         Instagram
       </a>
     </div>
-    <p class="site-footer__creci">CRECI: 310960</p>
+    <p class="site-footer__creci">CRECI: {BROKER.creci}</p>
   </div>
 </footer>

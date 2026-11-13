@@ -28,7 +28,8 @@ function mount(root: HTMLElement) {
     // One dot per reachable position: desktop 0–3, mobile 0–5 (spec §3)
     focus: 0,
     omitEnd: true,
-    label: 'Seleção do Edu',
+    // Section title comes from the markup (BROKER.selecaoTitle in src/lib/site.ts)
+    label: root.getAttribute('aria-label') ?? undefined,
     classes: {
       pagination: 'splide__pagination selecao__dots',
       page: 'splide__pagination__page selecao__dot',

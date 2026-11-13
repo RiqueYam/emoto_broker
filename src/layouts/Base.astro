@@ -7,7 +7,7 @@ import interRegular from '@fontsource/inter/files/inter-latin-400-normal.woff2?u
 import playfair500 from '@fontsource/playfair-display/files/playfair-display-latin-500-normal.woff2?url';
 import '../styles/main.scss';
 import IconSprite from '../components/IconSprite.astro';
-import { DESCRIPTION, INSTAGRAM_URL, OG_DESCRIPTION, SITE_URL, TITLE } from '../lib/site';
+import { BROKER, DESCRIPTION, INSTAGRAM_URL, OG_DESCRIPTION, SITE_URL, TITLE } from '../lib/site';
 import { PORTRAIT_SIZES } from '../lib/portrait';
 
 interface Props {
@@ -20,13 +20,12 @@ const ogImage = new URL('/og-image.jpg', SITE_URL).href;
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'RealEstateAgent',
-  name: 'Edu Soares | Private Broker',
-  alternateName: 'Carlos Eduardo Soares',
+  name: `${BROKER.name} | Private Broker`,
   description: OG_DESCRIPTION,
   url: canonical,
   image: ogImage,
-  telephone: '+55 11 96194-2319',
-  identifier: { '@type': 'PropertyValue', propertyID: 'CRECI', value: '310960' },
+  telephone: `+${BROKER.whatsapp}`,
+  identifier: { '@type': 'PropertyValue', propertyID: 'CRECI', value: BROKER.creci },
   memberOf: { '@type': 'Organization', name: 'Coelho da Fonseca', url: 'https://www.coelhodafonseca.com.br' },
   areaServed: [
     { '@type': 'City', name: 'São Paulo' },
@@ -52,7 +51,7 @@ const jsonLd = {
     </script>
     <title>{TITLE}</title>
     <meta name="description" content={DESCRIPTION} />
-    <meta name="author" content="Edu Soares" />
+    <meta name="author" content={BROKER.name} />
     <meta name="robots" content="index, follow" />
     <link rel="canonical" href={canonical} />
     <link
@@ -72,14 +71,14 @@ const jsonLd = {
 
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="pt_BR" />
-    <meta property="og:site_name" content="Edu Soares | Private Broker" />
+    <meta property="og:site_name" content={`${BROKER.name} | Private Broker`} />
     <meta property="og:title" content={TITLE} />
     <meta property="og:description" content={OG_DESCRIPTION} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={ogImage} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="Edu Soares, Private Broker — Imóveis Selecionados" />
+    <meta property="og:image:alt" content={`${BROKER.name}, Private Broker — Imóveis Selecionados`} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={TITLE} />
     <meta name="twitter:description" content={OG_DESCRIPTION} />

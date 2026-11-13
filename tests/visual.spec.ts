@@ -18,17 +18,30 @@ async function settle(page: Page) {
   await page.waitForTimeout(600);
 }
 
-/** Share of pixels whose max channel difference exceeds `tol`. */
-async function diffRatio(a: Buffer, b: Buffer, w: number, h: number, tol = 24) {
+/** Share of pixels whose max channel difference exceeds `tol`, ignoring rows in `skip` ([top, bottom) pairs). */
+async function diffRatio(
+  a: Buffer,
+  b: Buffer,
+  w: number,
+  h: number,
+  skip: [number, number][] = [],
+  tol = 24,
+) {
   const crop = (img: Buffer) =>
     sharp(img).extract({ left: 0, top: 0, width: w, height: h }).raw().ensureAlpha().toBuffer();
   const [x, y] = await Promise.all([crop(a), crop(b)]);
   let n = 0;
-  for (let i = 0; i < x.length; i += 4) {
-    const d = Math.max(Math.abs(x[i] - y[i]), Math.abs(x[i + 1] - y[i + 1]), Math.abs(x[i + 2] - y[i + 2]));
-    if (d > tol) n++;
+  let counted = 0;
+  for (let row = 0; row < h; row++) {
+    if (skip.some(([t, btm]) => row >= t && row < btm)) continue;
+    for (let col = 0; col < w; col++) {
+      const i = (row * w + col) * 4;
+      const d = Math.max(Math.abs(x[i] - y[i]), Math.abs(x[i + 1] - y[i + 1]), Math.abs(x[i + 2] - y[i + 2]));
+      if (d > tol) n++;
+      counted++;
+    }
   }
-  return n / (w * h);
+  return n / counted;
 }
 
 test.use({ reducedMotion: 'reduce' });
@@ -65,7 +78,12 @@ test('header block is identical to the live page (above the moved helper line)',
   const [a, b] = await Promise.all([live.screenshot(), page.screenshot()]);
   await mkdir(OUT, { recursive: true });
   await sharp(a).toFile(`${OUT}/live-${info.project.name}-fold.png`);
-  const ratio = await diffRatio(a, b, width, bottom);
+  // The broker's name differs from the live page on purpose (Edu Soares → Eliane Emoto); skip that line
+  const name = await page.locator('.hero__name').evaluate((el) => {
+    const r = el.getBoundingClientRect();
+    return [Math.floor(r.top) - 2, Math.ceil(r.bottom) + 2] as [number, number];
+  });
+  const ratio = await diffRatio(a, b, width, bottom, [name]);
   console.log(`${info.project.name}: ${(ratio * 100).toFixed(3)}% of header pixels differ`);
   expect(ratio).toBeLessThan(0.002);
   await live.close();

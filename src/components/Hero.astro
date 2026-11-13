@@ -1,6 +1,7 @@
 ---
 import LiveIcon from './LiveIcon.astro';
 import { PORTRAIT_SIZES } from '../lib/portrait';
+import { BROKER } from '../lib/site';
 
 interface Props {
   portrait: { avif: string; webp: string; fallback: string; width: number; height: number };
@@ -16,7 +17,7 @@ const { portrait } = Astro.props;
       <img
         class="hero__img"
         src={portrait.fallback}
-        alt="Edu Soares, Private Broker"
+        alt={`${BROKER.name}, Private Broker`}
         width={portrait.width}
         height={portrait.height}
         loading="eager"
@@ -25,10 +26,12 @@ const { portrait } = Astro.props;
       />
     </picture>
     <div class="hero__fade" aria-hidden="true"></div>
-    <figcaption class="visually-hidden">Edu Soares · CRECI: 310960</figcaption>
+    <figcaption class="visually-hidden">
+      {BROKER.name} · CRECI: {BROKER.creci}
+    </figcaption>
   </figure>
   <div class="container hero__block">
-    <p class="hero__name">EDU SOARES</p>
+    <p class="hero__name">{BROKER.name.toUpperCase()}</p>
     <p class="eyebrow hero__role">Private Broker</p>
     <p class="coelho-pill">
       <LiveIcon name="badge-check" />

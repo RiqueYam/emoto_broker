@@ -7,6 +7,11 @@ import { chromium } from '@playwright/test';
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import sharp from 'sharp';
+import { BROKER } from '../src/lib/site.ts';
+
+// Monogram from the broker's initials, e.g. "Eliane Emoto" → E + E
+const [first = '', ...rest] = BROKER.name.split(/\s+/);
+const initials = [first[0] ?? '', rest.at(-1)?.[0] ?? ''].map((c) => c.toUpperCase());
 
 const font = (p: string) => readFile(path.resolve('node_modules', p)).then((b) => b.toString('base64'));
 
@@ -27,7 +32,7 @@ const monogram = (size: number) => `<!doctype html><style>${fonts}
 body{width:${size}px;height:${size}px;background:#1D1D1F;display:flex;align-items:center;justify-content:center;
 font-family:'Playfair Display';color:#FFFDF9;font-size:${size * 0.5}px;letter-spacing:${-size * 0.02}px;
 ${size >= 128 ? '' : ''}border-radius:${size >= 128 ? 0 : size * 0.18}px}
-span{color:#836731}</style><body>E<span>S</span></body>`;
+span{color:#836731}</style><body>${initials[0]}<span>${initials[1]}</span></body>`;
 
 const og = `<!doctype html><style>${fonts}
 body{width:1200px;height:630px;background:#FFFDF9;font-family:Inter;color:#1D1D1F;position:relative;overflow:hidden}
@@ -41,7 +46,7 @@ h1{margin-top:20px;font-family:'Playfair Display';font-weight:500;font-size:56px
 .c{position:absolute;right:80px;bottom:64px;padding:10px 20px;border-radius:9999px;background:#1D1D1F;color:#FFFDF9;
 font-size:13px;font-weight:500;letter-spacing:.14em;text-transform:uppercase}</style>
 <body><div class="ph"></div><div class="fade"></div>
-<div class="t"><p class="n">EDU SOARES</p><p class="r">Private Broker</p><div class="d"></div><h1>Imóveis Selecionados</h1></div>
+<div class="t"><p class="n">${BROKER.name.toUpperCase()}</p><p class="r">Private Broker</p><div class="d"></div><h1>Imóveis Selecionados</h1></div>
 <p class="c">Corretor associado à Coelho da Fonseca</p></body>`;
 
 const browser = await chromium.launch();

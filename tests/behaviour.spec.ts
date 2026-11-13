@@ -6,7 +6,7 @@ const isMobile = (page: Page) => (page.viewportSize()?.width ?? 0) < 768;
 const visibleCards = (page: Page) => page.locator('.listing-grid .card-col:visible');
 const activeDot = (page: Page) => page.locator('.selecao__dot.is-active');
 
-test.describe('Seleção do Edu (spec §3)', () => {
+test.describe('Seleção carousel (spec §3)', () => {
   // Splide mounts on idle; the 3.5 s timer starts at mount
   const mounted = (page: Page) => expect(page.locator('#selecao.is-initialized')).toHaveCount(1);
 
@@ -14,7 +14,7 @@ test.describe('Seleção do Edu (spec §3)', () => {
     await page.goto('/');
     const root = page.locator('#selecao');
     await expect(root).toHaveAttribute('aria-roledescription', 'carrossel');
-    await expect(root).toHaveAttribute('aria-label', 'Seleção do Edu');
+    await expect(root).toHaveAttribute('aria-label', 'Seleção de Eliane');
     const slides = root.locator('.splide__slide');
     await expect(slides).toHaveCount(6);
     for (let i = 0; i < 6; i++) {
@@ -184,7 +184,7 @@ test.describe('WhatsApp button and links (spec §5, §7)', () => {
       })),
     );
     for (const r of rows) {
-      const msg = `Olá, Edu. Vi no seu site o imóvel cód. ${r.code} (${r.title}) e gostaria de mais informações.`;
+      const msg = `Olá, Eliane. Vi no seu site o imóvel cód. ${r.code} (${r.title}) e gostaria de mais informações.`;
       expect(r.wa).toBe(`https://wa.me/5511961942319?text=${encodeURIComponent(msg)}`);
       expect(r.label).toBe(`Consultar no WhatsApp sobre ${r.title}, código ${r.code}`);
       expect(r.coelho).toContain('corretor=18039');
@@ -195,7 +195,7 @@ test.describe('WhatsApp button and links (spec §5, §7)', () => {
 
   test('floating and footer buttons use the generic message', async ({ page }) => {
     await page.goto('/');
-    const generic = `https://wa.me/5511961942319?text=${encodeURIComponent('Olá, Edu. Vim pelo site e gostaria de conversar sobre um imóvel.')}`;
+    const generic = `https://wa.me/5511961942319?text=${encodeURIComponent('Olá, Eliane. Vim pelo site e gostaria de conversar sobre um imóvel.')}`;
     await expect(page.locator('.wa-float')).toHaveAttribute('href', generic);
     await expect(page.locator('.site-footer__links a').first()).toHaveAttribute('href', generic);
   });
