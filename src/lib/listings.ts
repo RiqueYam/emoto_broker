@@ -6,9 +6,12 @@ import { listingWaUrl } from './whatsapp';
 export const TABS = ['Todos', 'Apartamento', 'Cobertura', 'Casa', 'Alphaville'] as const;
 export type Tab = (typeof TABS)[number];
 
-const photos = import.meta.glob<{ default: ImageMetadata }>('/src/assets/listings/*.{webp,jpg,jpeg,png,avif}', {
-  eager: true,
-});
+const photos = import.meta.glob<{ default: ImageMetadata }>(
+  '/src/assets/listings/*.{webp,jpg,jpeg,png,avif}',
+  {
+    eager: true,
+  },
+);
 
 function photoFor(codigo: string): ImageMetadata {
   const key = Object.keys(photos).find((p) => p.split('/').pop()!.split('.')[0] === codigo);

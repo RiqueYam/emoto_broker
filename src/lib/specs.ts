@@ -22,7 +22,8 @@ export function listingSpecs(l: SpecSource): Spec[] {
     specs.push({ kind: 'area', text: `${formatNumber(l.area_m2)} m² úteis` });
   } else {
     specs.push({ kind: 'area', text: `${formatNumber(l.area_m2)} m² construídos` });
-    if (l.terreno_m2 !== undefined) specs.push({ kind: 'land', text: `${formatNumber(l.terreno_m2)} m² de terreno` });
+    if (l.terreno_m2 !== undefined)
+      specs.push({ kind: 'land', text: `${formatNumber(l.terreno_m2)} m² de terreno` });
   }
   specs.push({ kind: 'bed', text: `${l.quartos} quartos` });
   specs.push({ kind: 'bath', text: `${l.suites} suítes` });

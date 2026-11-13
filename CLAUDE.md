@@ -96,3 +96,22 @@ Rules:
 - Branch `main` for production; build features on branches with small commits.
 - Verify visually with Playwright at 1440×900 and 375×812. Compare against `design/mockups/` and, if reachable, the live page. Run Lighthouse (mobile).
 - Record the commands here once the project exists: dev, build, preview, check.
+
+## Commands
+Node ≥ 22.12 (Astro 6). Install with `npm ci`.
+
+| Task | Command |
+|---|---|
+| Dev server (http://localhost:4321) | `npm run dev` |
+| Production build → `dist/` | `npm run build` |
+| Serve the build | `npm run preview` |
+| Type check + formatting check | `npm run check` |
+| Format | `npm run format` |
+| Download portrait + listing photos (one-off) | `npm run fetch-images` |
+| Regenerate favicons + sharing image | `npx tsx scripts/make-brand-assets.ts` |
+| Playwright (behaviour + visual vs live, 1440×900 and 375×812) | `npx playwright install chromium` once, then `npm run test:visual` (starts `preview` itself; `BASE_URL=… npm run test:visual` tests a deployed preview) |
+| Lighthouse CI with budgets | `npm run lhci` (mobile, `lighthouserc.json`) and `npx lhci autorun --config=lighthouserc.desktop.json`. Set `CHROME_PATH` to an installed Chrome on Windows. |
+
+Notes:
+- Screenshots land in `test-results/screens/`, Lighthouse reports in `.lighthouseci/`.
+- Decisions and deviations from this file are listed in `docs/open-items.md`.
