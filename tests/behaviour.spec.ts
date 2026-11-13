@@ -3,12 +3,19 @@ import { readFileSync } from 'node:fs';
 import { parse } from 'csv-parse/sync';
 import { BROKER } from '../src/lib/site';
 import { GENERIC_MESSAGE, listingMessage, waUrl } from '../src/lib/whatsapp';
+import { bairroFromTitle, matches, slug, EMPTY_FILTERS, type FilterState } from '../src/lib/filters';
 
 // Expectations come from the same data and settings as the site, so editing them never breaks the tests
-const rows: { codigo: string; tipo_tab: string; destaque: string; ordem: string }[] = parse(
-  readFileSync('data/listings.csv', 'utf8'),
-  { columns: true, skip_empty_lines: true, bom: true },
-);
+const rows: {
+  codigo: string;
+  titulo: string;
+  tipo_tab: string;
+  destaque: string;
+  ordem: string;
+  quartos: string;
+  vagas: string;
+  area_m2: string;
+}[] = parse(readFileSync('data/listings.csv', 'utf8'), { columns: true, skip_empty_lines: true, bom: true });
 const FEATURED = rows
   .filter((r) => r.destaque === 'sim')
   .sort((a, b) => Number(a.ordem) - Number(b.ordem))
@@ -16,6 +23,16 @@ const FEATURED = rows
 const TOTAL = rows.length;
 const COUNT = (tipo: string) => rows.filter((r) => r.tipo_tab === tipo).length;
 const N_FEAT = FEATURED.length;
+const filterable = rows.map((r) => ({
+  tipo: r.tipo_tab,
+  bairro: slug(bairroFromTitle(r.titulo)!),
+  quartos: Number(r.quartos),
+  vagas: Number(r.vagas || 0),
+  area: Number(r.area_m2),
+}));
+/** How many listings match these filters (and tab), computed from the CSV. */
+const MATCHING = (f: Partial<FilterState>, tipo?: string) =>
+  filterable.filter((l) => matches(l, { ...EMPTY_FILTERS, ...f }) && (!tipo || l.tipo === tipo)).length;
 const isMobile = (page: Page) => (page.viewportSize()?.width ?? 0) < 768;
 
 const visibleCards = (page: Page) => page.locator('.listing-grid .card-col:visible');
@@ -205,7 +222,96 @@ test.describe('Todos os imóveis + Ver mais (spec §4)', () => {
     await page.goto('/');
     await expect(visibleCards(page)).toHaveCount(TOTAL);
     await expect(page.locator('.more')).toBeHidden();
+    await expect(page.locator('#filters')).toBeHidden();
     await ctx.close();
+  });
+});
+
+test.describe('Filters (bairro, quartos, vagas, área)', () => {
+  const count = (page: Page) => page.locator('.more__count');
+
+  /** Pick an option: desktop through its dropdown, mobile through the sheet (left open). */
+  async function pick(page: Page, filter: string, label: string) {
+    if (isMobile(page)) {
+      if (!(await page.locator('#filters-sheet').evaluate((d: HTMLDialogElement) => d.open)))
+        await page.locator('.filters__open').click();
+      await page
+        .locator(`#filters-sheet .filter[data-filter="${filter}"]`)
+        .getByLabel(label, { exact: true })
+        .click();
+    } else {
+      await page.locator(`.filter[data-filter="${filter}"] > summary`).click();
+      await page.locator(`.filter[data-filter="${filter}"]`).getByLabel(label, { exact: true }).click();
+    }
+  }
+
+  test('quartos 4+ shows only matching cards, updates counts and the URL', async ({ page }) => {
+    await page.goto('/');
+    await pick(page, 'quartos', '4+');
+    const n = MATCHING({ quartos: 4 });
+    await expect(count(page)).toHaveText(`Mostrando ${Math.min(n, isMobile(page) ? 6 : 9)} de ${n}`);
+    const shown = await visibleCards(page).evaluateAll((els) =>
+      els.map((e) => Number((e as HTMLElement).dataset.quartos)),
+    );
+    expect(shown.every((q) => q >= 4)).toBe(true);
+    await expect(page.locator('.type-tab[data-tab="cobertura"] .type-tab__n')).toHaveText(
+      String(MATCHING({ quartos: 4 }, 'Cobertura')),
+    );
+    expect(new URL(page.url()).searchParams.get('quartos')).toBe('4');
+  });
+
+  test('a shared link restores the filters and combines them with the tab', async ({ page }) => {
+    await page.goto('/?tipo=cobertura&bairro=itaim-bibi,cidade-jardim&vagas=4&area=250-500');
+    const f = { bairro: ['itaim-bibi', 'cidade-jardim'], vagas: 4, area: '250-500' };
+    const n = MATCHING(f, 'Cobertura');
+    await expect(visibleCards(page)).toHaveCount(n);
+    await expect(page.locator('.type-tab[data-tab="todos"] .type-tab__n')).toHaveText(String(MATCHING(f)));
+    if (!isMobile(page)) {
+      await expect(page.locator('.filter[data-filter="bairro"] .filter__value')).toHaveText('2 bairros');
+      await expect(page.locator('.filter[data-filter="area"] .filter__value')).toHaveText('250 a 500 m²');
+    } else {
+      await expect(page.locator('.filters__badge')).toHaveText(' (3)');
+    }
+  });
+
+  test('no match shows the empty message; Limpar filtros brings everything back', async ({ page }) => {
+    await page.goto('/?bairro=aclimacao&quartos=5&vagas=5&area=0-250');
+    expect(MATCHING({ bairro: ['aclimacao'], quartos: 5, vagas: 5, area: '0-250' })).toBe(0);
+    await expect(page.locator('#filters-empty')).toBeVisible();
+    await expect(visibleCards(page)).toHaveCount(0);
+    await expect(page.locator('.more__btn')).toBeHidden();
+    await page.locator('#filters-empty .filters__clear').click();
+    await expect(page.locator('#filters-empty')).toBeHidden();
+    await expect(count(page)).toHaveText(`Mostrando ${isMobile(page) ? 6 : 9} de ${TOTAL}`);
+    expect(new URL(page.url()).search).toBe('');
+  });
+
+  test('mobile: Filtros opens a sheet, the apply button shows the result count and closes it', async ({
+    page,
+  }) => {
+    test.skip(!isMobile(page), 'the sheet is mobile only');
+    await page.goto('/');
+    await expect(page.locator('.filters__bar')).toBeHidden();
+    await pick(page, 'vagas', '5+');
+    const n = MATCHING({ vagas: 5 });
+    const apply = page.locator('.filters-sheet__apply');
+    await expect(apply).toHaveText(`Ver ${n} imóveis`);
+    await apply.click();
+    await expect(page.locator('#filters-sheet')).toBeHidden();
+    await expect(page.locator('.filters__open')).toContainText('Filtros (1)');
+    await expect(count(page)).toHaveText(`Mostrando ${Math.min(n, 6)} de ${n}`);
+  });
+
+  test('desktop: Escape closes a dropdown and returns focus to it', async ({ page }) => {
+    test.skip(isMobile(page), 'dropdowns are desktop only');
+    await page.goto('/');
+    await expect(page.locator('.filters__open')).toBeHidden();
+    const summary = page.locator('.filter[data-filter="area"] > summary');
+    await summary.click();
+    await expect(page.locator('.filter[data-filter="area"]')).toHaveAttribute('open', '');
+    await page.keyboard.press('Escape');
+    await expect(page.locator('.filter[data-filter="area"]')).not.toHaveAttribute('open', '');
+    await expect(summary).toBeFocused();
   });
 });
 

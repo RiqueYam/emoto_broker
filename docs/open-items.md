@@ -26,6 +26,15 @@ The whole card (photo, specs, title, code and "Clique para mais informações") 
 
 The link's accessible name ("Abrir … no site Coelho da Fonseca", `PropertyCard.astro` / `Selecao.astro`) and `data-track="coelho_click"` should follow the new destination.
 
+## Filters (added 2026-11-14)
+
+Under the type tabs: **Bairro** (several at once), **Quartos** and **Vagas** (at least 2, 3, 4 or 5), **Área** (até 250, 250 a 500, 500 a 1.000, acima de 1.000 m², on área útil or construída, the first number on the card). Desktop shows a row of dropdowns; phones show one "Filtros" pill that opens a bottom sheet with a "Ver N imóveis" button. Filters combine with the type tab, the tab counts and "Mostrando X de Y" follow them, Ver mais restarts from the first batch, and the choice is kept in the link (`?bairro=itaim-bibi,cidade-jardim&quartos=3&vagas=4&area=250-500`). Without JavaScript the filters are hidden and every card shows. Options live in `src/lib/filters.ts`; markup in `src/components/ListingFilters.astro`; logic in `src/scripts/listings.ts`.
+
+- [ ] **Neighbourhood comes from the title** ("Apartamento no Itaim Bibi" → Itaim Bibi). A new listing whose title doesn't end in "no/na <bairro>" stops the build with its code. If titles ever change style, add a `bairro` column to `data/listings.csv` instead.
+- [ ] **New copy, please confirm:** "Filtros", "Bairro", "Quartos", "Vagas", "Área", "Todos"/"Todas", the ranges above, "Limpar filtros", "Ver N imóveis", "Nenhum imóvel encontrado com esses filtros." The spec has no wording for filters.
+- [ ] **Price filter:** later. It needs a price column in the CSV, and the spec says not to show prices, so decide first whether a range filter without visible prices is wanted. It would be one more entry in `src/lib/filters.ts`.
+- [ ] **Performance on Vercel:** local Lighthouse was too noisy on 2026-11-14 to judge (the previous build scored 0.73–0.99 in the same session, the new one 0.59–0.96, with the same blocking time). The script grows from ~1 KB to ~2.3 KB gzipped. Re-check on the preview.
+
 ## Waiting on a decision or an account
 
 - [ ] **Featured listings.** Eliane confirms the six listings for "Seleção da Eliane" and their order. The placeholders are 549404, 649403, 72911, 689204, 265678 and 352080, set in the `destaque`/`ordem` columns of `data/listings.csv`.

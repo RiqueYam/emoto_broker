@@ -1,8 +1,9 @@
 /**
- * Type tabs + Ver mais (spec §4). Plain TypeScript: the CLAUDE.md fallback for Alpine,
+ * Type tabs + filters + Ver mais (spec §4). Plain TypeScript: the CLAUDE.md fallback for Alpine,
  * chosen to keep mobile main-thread time inside the Lighthouse budget.
  */
 import { track } from './track';
+import { AREA_RANGES, EMPTY_FILTERS, MIN_OPTIONS, matches, type FilterState } from '../lib/filters';
 
 const MOBILE = '(max-width: 767px)';
 const reduceMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -12,47 +13,138 @@ const grid = document.getElementById('listing-grid');
 const moreBox = document.getElementById('listings-more');
 
 if (root && grid && moreBox) {
-  const counts: Record<string, number> = JSON.parse(root.dataset.counts ?? '{}');
   const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>('.type-tab'));
   const counter = moreBox.querySelector<HTMLElement>('.more__count')!;
   const button = moreBox.querySelector<HTMLButtonElement>('.more__btn')!;
   const cols = Array.from(grid.querySelectorAll<HTMLElement>('.card-col')).map((el) => ({
     el,
     tipo: el.dataset.tipo!,
-    i: Number(el.dataset.i),
-    ti: Number(el.dataset.ti),
+    bairro: el.dataset.bairro!,
+    quartos: Number(el.dataset.quartos),
+    vagas: Number(el.dataset.vagas),
+    area: Number(el.dataset.area),
   }));
+  const tabSlugs = new Set(tabs.map((t) => t.dataset.tab!));
 
-  const pageSize = window.matchMedia(MOBILE).matches ? 6 : 9;
+  // --- Filter controls
+  const box = document.getElementById('filters')!;
+  const bar = document.getElementById('filters-bar')!;
+  const form = document.getElementById('filters-form') as HTMLFormElement;
+  const details = Array.from(form.querySelectorAll<HTMLDetailsElement>('details.filter'));
+  const clearButtons = Array.from(root.querySelectorAll<HTMLButtonElement>('.filters__clear'));
+  const empty = document.getElementById('filters-empty')!;
+  const openBtn = box.querySelector<HTMLButtonElement>('.filters__open')!;
+  const badge = box.querySelector<HTMLElement>('.filters__badge')!;
+  const sheet = document.getElementById('filters-sheet') as HTMLDialogElement;
+  const sheetBody = sheet.querySelector<HTMLElement>('.filters-sheet__body')!;
+  const applyBtn = sheet.querySelector<HTMLButtonElement>('.filters-sheet__apply')!;
 
-  // Restore ?tipo=…&mostrar=… from a shared link
+  const mobile = window.matchMedia(MOBILE);
+  const pageSize = mobile.matches ? 6 : 9;
+
+  // --- State, restored from a shared link: ?tipo=…&bairro=a,b&quartos=3&vagas=4&area=250-500&mostrar=…
   const params = new URLSearchParams(location.search);
   const tipoParam = params.get('tipo');
   const mostrar = Number(params.get('mostrar'));
-  let tab = tipoParam && tipoParam in counts ? tipoParam : 'todos';
+  let tab = tipoParam && tabSlugs.has(tipoParam) ? tipoParam : 'todos';
   let shown = Number.isInteger(mostrar) && mostrar > pageSize ? mostrar : pageSize;
 
-  const total = () => counts[tab] ?? 0;
+  const validBairros = new Set(cols.map((c) => c.bairro));
+  const minParam = (k: string) => {
+    const n = Number(params.get(k));
+    return (MIN_OPTIONS as readonly number[]).includes(n) ? n : 0;
+  };
+  const areaParam = params.get('area') ?? '';
+  let filters: FilterState = {
+    bairro: (params.get('bairro') ?? '').split(',').filter((b) => validBairros.has(b)),
+    quartos: minParam('quartos'),
+    vagas: minParam('vagas'),
+    area: AREA_RANGES.some((r) => r.value === areaParam) ? areaParam : '',
+  };
+
+  /** Push the state into the form controls (after restoring from the URL or clearing). */
+  function writeForm() {
+    for (const input of form.querySelectorAll<HTMLInputElement>('input')) {
+      const v = input.value;
+      if (input.name === 'bairro') input.checked = filters.bairro.includes(v);
+      else if (input.name === 'area') input.checked = filters.area === v;
+      else input.checked = String(filters[input.name as 'quartos' | 'vagas'] || '') === v;
+    }
+  }
+
+  function readForm(): FilterState {
+    const data = new FormData(form);
+    return {
+      bairro: data.getAll('bairro') as string[],
+      quartos: Number(data.get('quartos')) || 0,
+      vagas: Number(data.get('vagas')) || 0,
+      area: String(data.get('area') ?? ''),
+    };
+  }
+
+  const activeCount = () =>
+    (filters.bairro.length ? 1 : 0) +
+    (filters.quartos ? 1 : 0) +
+    (filters.vagas ? 1 : 0) +
+    (filters.area ? 1 : 0);
+
+  let matching = cols;
+  const recompute = () => {
+    matching = cols.filter((c) => matches(c, filters));
+  };
+  const inTab = () => matching.filter((c) => tab === 'todos' || c.tipo === tab);
+  const total = () => inTab().length;
   const shownCount = () => Math.min(shown, total());
-  const inTab = () => cols.filter((c) => tab === 'todos' || c.tipo === tab);
+
+  /** Text shown inside a closed dropdown, e.g. "3+" or "Itaim Bibi" or "2 bairros". */
+  function summaryValue(name: string): string {
+    const checked = Array.from(
+      form.querySelectorAll<HTMLInputElement>(`input[name="${name}"]:checked`),
+    ).filter((i) => i.value !== '');
+    if (!checked.length) return '';
+    if (checked.length === 1) return checked[0].nextElementSibling!.textContent!.trim();
+    return `${checked.length} bairros`;
+  }
 
   function render() {
-    const visible = new Set(
-      inTab()
-        .slice(0, shown)
-        .map((c) => c.el),
-    );
+    const list = inTab();
+    const visible = new Set(list.slice(0, shown).map((c) => c.el));
     for (const c of cols) c.el.hidden = !visible.has(c.el);
-    for (const t of tabs) t.setAttribute('aria-pressed', String(t.dataset.tab === tab));
-    counter.textContent = `Mostrando ${shownCount()} de ${total()}`;
-    button.hidden = shown >= total();
+
+    // Tab counts follow the filters
+    for (const t of tabs) {
+      t.setAttribute('aria-pressed', String(t.dataset.tab === tab));
+      const n =
+        t.dataset.tab === 'todos' ? matching.length : matching.filter((c) => c.tipo === t.dataset.tab).length;
+      t.querySelector('.type-tab__n')!.textContent = String(n);
+    }
+
+    const n = total();
+    counter.textContent = `Mostrando ${shownCount()} de ${n}`;
+    counter.hidden = n === 0;
+    button.hidden = shown >= n;
+    empty.hidden = n !== 0;
+
+    const active = activeCount();
+    badge.textContent = active ? ` (${active})` : '';
+    openBtn.classList.toggle('is-active', active > 0);
+    for (const b of clearButtons) if (b.closest('#filters-form')) b.hidden = active === 0;
+    for (const d of details) {
+      const value = summaryValue(d.dataset.filter!);
+      d.querySelector('.filter__value')!.textContent = value;
+      d.classList.toggle('is-active', value !== '');
+    }
+    applyBtn.textContent = n === 1 ? 'Ver 1 imóvel' : `Ver ${n} imóveis`;
   }
 
   function syncUrl() {
     const url = new URL(location.href);
-    url.searchParams.delete('tipo');
-    url.searchParams.delete('mostrar');
+    for (const k of ['tipo', 'bairro', 'quartos', 'vagas', 'area', 'mostrar']) url.searchParams.delete(k);
     if (tab !== 'todos') url.searchParams.set('tipo', tab);
+    if (filters.bairro.length) url.searchParams.set('bairro', filters.bairro.join(','));
+    if (filters.quartos) url.searchParams.set('quartos', String(filters.quartos));
+    if (filters.vagas) url.searchParams.set('vagas', String(filters.vagas));
+    if (filters.area) url.searchParams.set('area', filters.area);
     if (shown > pageSize) url.searchParams.set('mostrar', String(shownCount()));
     history.replaceState(history.state, '', url);
   }
@@ -68,6 +160,76 @@ if (root && grid && moreBox) {
       track('tab_change', { tab });
     });
   }
+
+  // Any filter change applies at once (behind the sheet on mobile) and resets the batch
+  form.addEventListener('change', (e) => {
+    filters = readForm();
+    shown = pageSize;
+    recompute();
+    render();
+    syncUrl();
+    const name = (e.target as HTMLInputElement).name as keyof FilterState;
+    track('filter_change', { filter: name, value: String(filters[name]) });
+  });
+
+  for (const b of clearButtons) {
+    b.addEventListener('click', () => {
+      filters = { ...EMPTY_FILTERS, bairro: [] };
+      shown = pageSize;
+      writeForm();
+      recompute();
+      render();
+      syncUrl();
+      track('filter_clear');
+    });
+  }
+
+  // --- Desktop dropdowns: one open at a time, close on outside click or Escape
+  for (const d of details) {
+    d.addEventListener('toggle', () => {
+      if (d.open && !sheet.open) for (const o of details) if (o !== d) o.open = false;
+    });
+  }
+  document.addEventListener('click', (e) => {
+    if (sheet.open) return;
+    for (const d of details) if (d.open && !d.contains(e.target as Node)) d.open = false;
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape' || sheet.open) return;
+    const open = details.find((d) => d.open);
+    if (open) {
+      open.open = false;
+      open.querySelector('summary')!.focus();
+    }
+  });
+
+  // --- Mobile sheet: the form moves into the dialog while it is open
+  openBtn.addEventListener('click', () => {
+    sheetBody.append(form);
+    for (const d of details) d.open = true;
+    sheet.showModal();
+    document.documentElement.classList.add('filters-sheet-open');
+  });
+  sheet.addEventListener('close', () => {
+    document.documentElement.classList.remove('filters-sheet-open');
+    bar.append(form);
+    for (const d of details) d.open = false;
+    openBtn.focus();
+  });
+  sheet.querySelector('.filters-sheet__close')!.addEventListener('click', () => sheet.close());
+  applyBtn.addEventListener('click', () => {
+    sheet.close();
+    document
+      .getElementById('lista-imoveis')!
+      .scrollIntoView({ block: 'start', behavior: reduceMotion() ? 'auto' : 'smooth' });
+  });
+  // A tap on the backdrop closes the sheet
+  sheet.addEventListener('click', (e) => {
+    if (e.target === sheet) sheet.close();
+  });
+  mobile.addEventListener('change', () => {
+    if (!mobile.matches && sheet.open) sheet.close();
+  });
 
   button.addEventListener('click', () => {
     const firstNew = shownCount();
@@ -93,8 +255,11 @@ if (root && grid && moreBox) {
     }
   });
 
+  writeForm();
+  recompute();
   render();
   moreBox.hidden = false;
+  box.hidden = false;
   // Hand visibility over from the pre-hide CSS
   document.documentElement.classList.add('listings-ready');
 }

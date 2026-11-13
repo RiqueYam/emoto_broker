@@ -1,5 +1,7 @@
 ---
 import PropertyCard from './PropertyCard.astro';
+import ListingFilters from './ListingFilters.astro';
+import { slug } from '../lib/filters';
 import { TABS, tabCounts, tabSlug, type ListingView } from '../lib/listings';
 
 interface Props {
@@ -31,10 +33,12 @@ const countsBySlug = Object.fromEntries(TABS.map((t) => [tabSlug(t), counts[t]])
         aria-pressed={t === 'Todos' ? 'true' : 'false'}
         data-tab={tabSlug(t)}
       >
-        {t} ({counts[t]})
+        <span class="type-tab__label">{t}</span> (<span class="type-tab__n">{counts[t]}</span>)
       </button>
     ))}
   </div>
+
+  <ListingFilters listings={listings} />
 
   <section class="container listing-grid" id="lista-imoveis" aria-labelledby="todos-os-imoveis">
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 gy-5 gy-md-6" id="listing-grid">
@@ -44,6 +48,10 @@ const countsBySlug = Object.fromEntries(TABS.map((t) => [tabSlug(t), counts[t]])
           data-tipo={tabSlug(l.tipo)}
           data-i={l.index}
           data-ti={l.tabIndex}
+          data-bairro={slug(l.bairro)}
+          data-quartos={l.quartos}
+          data-vagas={l.vagas}
+          data-area={l.area}
           data-pre-m={l.index >= 6 ? '' : undefined}
           data-pre-d={l.index >= 9 ? '' : undefined}
         >
@@ -51,6 +59,12 @@ const countsBySlug = Object.fromEntries(TABS.map((t) => [tabSlug(t), counts[t]])
         </div>
       ))}
     </div>
+    <p class="filters__empty" id="filters-empty" hidden>
+      Nenhum imóvel encontrado com esses filtros.
+      <button type="button" class="filters__clear">
+        Limpar filtros
+      </button>
+    </p>
   </section>
 
   <div class="container more" id="listings-more" hidden>

@@ -1,0 +1,109 @@
+---
+import { Icon } from 'astro-icon/components';
+import { AREA_RANGES, MIN_OPTIONS } from '../lib/filters';
+import { bairros, type ListingView } from '../lib/listings';
+
+interface Props {
+  listings: ListingView[];
+}
+const { listings } = Astro.props;
+
+const groups = [
+  {
+    name: 'bairro',
+    title: 'Bairro',
+    type: 'checkbox',
+    options: bairros(listings),
+  },
+  {
+    name: 'quartos',
+    title: 'Quartos',
+    type: 'radio',
+    options: [
+      { label: 'Todos', value: '' },
+      ...MIN_OPTIONS.map((n) => ({ label: `${n}+`, value: String(n) })),
+    ],
+  },
+  {
+    name: 'vagas',
+    title: 'Vagas',
+    type: 'radio',
+    options: [
+      { label: 'Todas', value: '' },
+      ...MIN_OPTIONS.map((n) => ({ label: `${n}+`, value: String(n) })),
+    ],
+  },
+  {
+    name: 'area',
+    title: 'Área',
+    type: 'radio',
+    options: [{ label: 'Todas', value: '' }, ...AREA_RANGES.map((r) => ({ label: r.label, value: r.value }))],
+  },
+] as const;
+---
+
+<!--
+  Filters (src/scripts/listings.ts). Desktop: a row of dropdowns. Mobile: one "Filtros" pill
+  that opens a bottom sheet; the same form moves into the sheet while it is open.
+  Hidden without JavaScript, where every card shows.
+-->
+<div class="container filters" id="filters" hidden>
+  <button
+    type="button"
+    class="btn pill filters__open"
+    aria-haspopup="dialog"
+    aria-controls="filters-sheet"
+    data-track="filters_open"
+  >
+    <Icon name="lucide:sliders-horizontal" aria-hidden="true" />
+    Filtros<span class="filters__badge"></span>
+  </button>
+
+  <div class="filters__bar" id="filters-bar">
+    <form class="filters__form" id="filters-form" aria-label="Filtrar imóveis">
+      {groups.map((g) => (
+        <details class="filter" data-filter={g.name}>
+          <summary class="btn pill filter__toggle">
+            <span class="filter__title">{g.title}</span>
+            <span class="filter__value" />
+            <Icon name="lucide:chevron-down" aria-hidden="true" />
+          </summary>
+          <fieldset class="filter__panel">
+            <legend class="filter__legend">{g.title}</legend>
+            <div class="filter__options">
+              {g.options.map((o) => (
+                <label class="filter__opt">
+                  <input
+                    type={g.type}
+                    name={g.name}
+                    value={o.value}
+                    checked={g.type === 'radio' && o.value === ''}
+                  />
+                  <span>{o.label}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+        </details>
+      ))}
+      <button type="button" class="filters__clear" hidden>
+        Limpar filtros
+      </button>
+    </form>
+  </div>
+
+  <dialog class="filters-sheet" id="filters-sheet" aria-labelledby="filters-sheet-title">
+    <div class="filters-sheet__head">
+      <h3 class="filters-sheet__title" id="filters-sheet-title">
+        Filtros
+      </h3>
+      <button type="button" class="filters-sheet__close" aria-label="Fechar filtros">
+        <Icon name="lucide:x" aria-hidden="true" />
+      </button>
+    </div>
+    <div class="filters-sheet__body"></div>
+    <div class="filters-sheet__foot">
+      <button type="button" class="btn pill filters-sheet__apply"></button>
+    </div>
+  </dialog>
+</div>

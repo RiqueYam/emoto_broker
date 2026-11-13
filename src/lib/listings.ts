@@ -2,6 +2,7 @@ import { getCollection } from 'astro:content';
 import type { ImageMetadata } from 'astro';
 import { listingSpecs, type Spec } from './specs';
 import { listingWaUrl } from './whatsapp';
+import { bairroFromTitle, slug } from './filters';
 
 export const TABS = ['Todos', 'Apartamento', 'Cobertura', 'Casa', 'Alphaville'] as const;
 export type Tab = (typeof TABS)[number];
@@ -33,6 +34,13 @@ export interface ListingView {
   index: number;
   /** Position within its own tab. */
   tabIndex: number;
+  /** Neighbourhood from the title, for the location filter. */
+  bairro: string;
+  quartos: number;
+  /** 0 when the CSV leaves it empty. */
+  vagas: number;
+  /** área útil or construída in m², the first number on the card. */
+  area: number;
 }
 
 export async function loadListings(): Promise<ListingView[]> {
@@ -41,6 +49,11 @@ export async function loadListings(): Promise<ListingView[]> {
   return entries.map((l) => {
     const tabIndex = perTab.get(l.tipo_tab) ?? 0;
     perTab.set(l.tipo_tab, tabIndex + 1);
+    const bairro = bairroFromTitle(l.titulo);
+    if (!bairro)
+      throw new Error(
+        `data/listings.csv, código ${l.codigo}: bairro não encontrado no titulo "${l.titulo}" (esperado "… no/na <bairro>")`,
+      );
     return {
       codigo: l.codigo,
       titulo: l.titulo,
@@ -53,6 +66,10 @@ export async function loadListings(): Promise<ListingView[]> {
       ordem: l.ordem,
       index: l.index,
       tabIndex,
+      bairro,
+      quartos: l.quartos,
+      vagas: l.vagas ?? 0,
+      area: l.area_m2,
     };
   });
 }
@@ -69,3 +86,10 @@ export function tabCounts(all: ListingView[]): Record<Tab, number> {
 
 /** URL slug for ?tipo= */
 export const tabSlug = (t: Tab) => t.toLowerCase();
+
+/** Neighbourhoods for the location filter, alphabetical (pt-BR), with their URL value. */
+export function bairros(all: ListingView[]): { label: string; value: string }[] {
+  return [...new Set(all.map((l) => l.bairro))]
+    .sort((a, b) => a.localeCompare(b, 'pt-BR'))
+    .map((label) => ({ label, value: slug(label) }));
+}

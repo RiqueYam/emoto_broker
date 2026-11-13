@@ -1,0 +1,310 @@
+// Listing filters (src/components/ListingFilters.astro): same pill language as the type tabs.
+// Desktop (≥ 768 px): a row of dropdowns. Mobile: one "Filtros" pill and a bottom sheet.
+
+// Sits right under the type tabs: their bottom padding minus the tab gap
+.filters {
+  margin-top: -1.25rem;
+  padding-bottom: 2rem;
+  @include media-breakpoint-up(sm) {
+    margin-top: -1.75rem;
+    padding-bottom: 2.5rem;
+  }
+}
+
+// Toggle pills (mobile "Filtros" and the desktop dropdown buttons): outline, like an inactive tab
+.filters__open,
+.filter__toggle {
+  --bs-btn-color: #{$ink};
+  --bs-btn-bg: transparent;
+  --bs-btn-border-color: #{$hairline};
+  --bs-btn-hover-color: #{$ink};
+  --bs-btn-hover-bg: transparent;
+  --bs-btn-hover-border-color: #{$bronze};
+  --bs-btn-active-color: #{$ink};
+  --bs-btn-active-bg: transparent;
+  --bs-btn-active-border-color: #{$bronze};
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  &.is-active {
+    --bs-btn-border-color: #{$ink};
+    --bs-btn-hover-border-color: #{$ink};
+  }
+  &:focus-visible {
+    outline: 2px solid $bronze;
+    outline-offset: 2px;
+  }
+  svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+  }
+}
+
+.filters__open {
+  @include media-breakpoint-up(md) {
+    display: none;
+  }
+}
+
+.filters__bar {
+  display: none;
+  @include media-breakpoint-up(md) {
+    display: block;
+  }
+}
+
+.filters__form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.filter {
+  position: relative;
+}
+
+.filter__toggle {
+  list-style: none;
+  &::-webkit-details-marker {
+    display: none;
+  }
+  svg {
+    color: $muted;
+    transition: transform 0.2s;
+  }
+  .filter[open] > & svg {
+    transform: rotate(180deg);
+  }
+}
+
+.filter__value {
+  color: $bronze;
+  &:empty {
+    display: none;
+  }
+}
+
+.filter__panel {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+// Desktop dropdown panel
+.filters__bar .filter__panel {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  width: max-content;
+  max-width: min(30rem, calc(100vw - 40px));
+  padding: 1rem;
+  background: $paper;
+  border: 1px solid $hairline;
+  border-radius: $border-radius-lg;
+  box-shadow: 0 10px 30px -10px rgba(29, 29, 31, 0.18);
+}
+
+// The title is already on the toggle in the dropdown; the sheet shows it as a heading
+.filter__legend {
+  @include visually-hidden;
+}
+
+.filter__options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+// Each option is a small pill around a hidden native radio / checkbox
+.filter__opt {
+  position: relative;
+  input {
+    position: absolute;
+    opacity: 0;
+    inset: 0;
+    margin: 0;
+    cursor: pointer;
+  }
+  span {
+    display: inline-block;
+    padding: 0.4rem 0.85rem;
+    border: 1px solid $hairline;
+    border-radius: $border-radius-pill;
+    font-size: 0.8125rem;
+    line-height: 1.25rem;
+    color: $muted;
+    white-space: nowrap;
+    transition:
+      border-color 0.15s,
+      background-color 0.15s,
+      color 0.15s;
+  }
+  input:hover + span {
+    border-color: $bronze;
+    color: $ink;
+  }
+  input:checked + span {
+    background: $ink;
+    border-color: $ink;
+    color: $paper;
+  }
+  input:focus-visible + span {
+    outline: 2px solid $bronze;
+    outline-offset: 2px;
+  }
+}
+
+.filters__clear {
+  padding: 0.25rem 0;
+  border: 0;
+  background: none;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: $bronze;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  &:hover {
+    color: $ink;
+  }
+  &:focus-visible {
+    outline: 2px solid $bronze;
+    outline-offset: 2px;
+  }
+}
+
+.filters__empty {
+  margin: 0;
+  padding: 1rem 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 1rem;
+  color: $muted;
+}
+
+// Mobile bottom sheet. The page behind it stops scrolling (class set by the script; a
+// :has() rule on <html> made the browser recheck the whole page's style on every change)
+.filters-sheet-open {
+  overflow: hidden;
+}
+
+.filters-sheet {
+  inset: auto 0 0 0;
+  width: 100%;
+  max-width: 100%;
+  max-height: 85dvh;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 16px 16px 0 0;
+  background: $paper;
+  color: $ink;
+  &[open] {
+    display: flex;
+    flex-direction: column;
+  }
+  &::backdrop {
+    background: rgba(29, 29, 31, 0.45);
+  }
+
+  .filters__form {
+    display: block;
+  }
+  .filter + .filter {
+    margin-top: 1.5rem;
+  }
+  .filter__toggle {
+    display: none;
+  }
+  .filter__legend {
+    position: static !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 0 0.75rem !important;
+    clip: auto !important;
+    overflow: visible !important;
+    white-space: normal !important;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: $muted;
+  }
+  .filter__opt span {
+    padding: 0.55rem 1rem;
+    font-size: 0.875rem;
+  }
+  // The sheet has its own clear and apply buttons in the footer
+  .filters__clear {
+    margin-top: 1.5rem;
+  }
+}
+
+.filters-sheet__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 20px;
+  border-bottom: 1px solid $hairline;
+}
+
+.filters-sheet__title {
+  margin: 0;
+  font-size: 1.5rem;
+  line-height: 2rem;
+}
+
+.filters-sheet__close {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin-right: -10px;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: $ink;
+  svg {
+    width: 22px;
+    height: 22px;
+  }
+  &:focus-visible {
+    outline: 2px solid $bronze;
+    outline-offset: -2px;
+  }
+}
+
+.filters-sheet__body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 1.25rem 20px 1.5rem;
+}
+
+.filters-sheet__foot {
+  padding: 0.75rem 20px calc(0.75rem + env(safe-area-inset-bottom));
+  border-top: 1px solid $hairline;
+}
+
+.filters-sheet__apply {
+  --bs-btn-color: #{$paper};
+  --bs-btn-bg: #{$ink};
+  --bs-btn-border-color: #{$ink};
+  --bs-btn-hover-color: #{$paper};
+  --bs-btn-hover-bg: #{$ink};
+  --bs-btn-hover-border-color: #{$ink};
+  --bs-btn-active-color: #{$paper};
+  --bs-btn-active-bg: #{$ink};
+  --bs-btn-active-border-color: #{$ink};
+  width: 100%;
+  min-height: 48px;
+  &:focus-visible {
+    outline: 2px solid $bronze;
+    outline-offset: 2px;
+  }
+}

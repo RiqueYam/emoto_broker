@@ -1,6 +1,6 @@
 # Next steps: from here to Eliane's site going live
 
-State on 2026-11-14: the site is built and tested on branch `feat/site-rebuild` and carries Eliane Emoto's name, WhatsApp, Instagram, Coelho broker ID and the feminine wording. Two of Edu Soares's details remain (CRECI and domain), and the top image is a dark placeholder. The preview at https://emotobroker.vercel.app shows the last pushed commit; push to update it (Phase 4).
+State on 2026-11-14: the site is built (now with filters by bairro, quartos, vagas and área) and tested on branch `feat/site-rebuild` and carries Eliane Emoto's name, WhatsApp, Instagram, Coelho broker ID and the feminine wording. Two of Edu Soares's details remain (CRECI and domain), and the top image is a dark placeholder. The preview at https://emotobroker.vercel.app shows the last pushed commit; push to update it (Phase 4).
 
 Work through the phases in order. Each step says what to collect, where to change it, and how to check it.
 
@@ -20,6 +20,8 @@ Work through the phases in order. Each step says what to collect, where to chang
 | 8 | **Domain** | **Pending** (not available yet). Canonical link, sharing tags and sitemap still use `edusoaresbroker.com.br` |
 | 9 | Wording | Done: "Corretora associada à Coelho da Fonseca" and "Seleção da Eliane" |
 | 10 | **Where "Clique para mais informações" should go** | Currently Coelho da Fonseca with her ID. Change it only if she wants another page |
+| 11 | **Filter wording** (Bairro, Quartos, Vagas, Área, size ranges) | Proposed, see "Filters" in `docs/open-items.md` |
+| 12 | **Price filter**: wanted? With visible prices or not? | Needs a price column in the CSV; the spec says not to show prices |
 
 ## Phase 2: apply the remaining details
 
@@ -32,15 +34,16 @@ All identity settings are in **`src/lib/site.ts`**; fields still holding Edu's d
    2. In `src/lib/site.ts`, set `HERO.file` to `'eliane-emoto.jpg'` and check `HERO.alt`.
    3. If the face is cropped badly, change `HERO.position` (`'50% 28%'` means centred horizontally, 28 % from the top). Raise or lower the second number.
    4. To go back to the placeholder, set `HERO.file` back to `null`.
-4. **Featured listings:** in `data/listings.csv`, `destaque` = `sim` plus `ordem` 1–6 marks the six carousel listings. Set every other row to `nao` with an empty `ordem`.
-5. **Card link ("Clique para mais informações"):** see "Changing the card link" in `docs/open-items.md`. There are three options: per listing, one rule for all, or only that line.
-6. **Sharing image and favicon:** after a new photo or CRECI, regenerate them.
+4. **Filters:** options (quartos/vagas minimums, size ranges) are in `src/lib/filters.ts`. Neighbourhoods come from the listing titles ("… no/na <bairro>"), so a new listing must follow that pattern. Price: add a column to `data/listings.csv`, then one entry in `src/lib/filters.ts` and one group in `src/components/ListingFilters.astro`.
+5. **Featured listings:** in `data/listings.csv`, `destaque` = `sim` plus `ordem` 1–6 marks the six carousel listings. Set every other row to `nao` with an empty `ordem`.
+6. **Card link ("Clique para mais informações"):** see "Changing the card link" in `docs/open-items.md`. There are three options: per listing, one rule for all, or only that line.
+7. **Sharing image and favicon:** after a new photo or CRECI, regenerate them.
 
 ```bash
 npx tsx scripts/make-brand-assets.ts
 ```
 
-7. **Clean-up:** once Eliane's photo is in, delete Edu's original portrait. The page no longer uses it.
+8. **Clean-up:** once Eliane's photo is in, delete Edu's original portrait. The page no longer uses it.
 
 ```bash
 git rm -r src/assets/portrait
@@ -96,7 +99,7 @@ BASE_URL=https://emotobroker.vercel.app npm run test:visual
 On the preview link, check:
 - iPhone Safari, Android Chrome, desktop Chrome and Safari;
 - the Instagram in-app browser (open the link from a Story or DM) and the WhatsApp in-app browser;
-- per device: the carousel moves every 3.5 s and stops while touched, Ver mais adds cards, the tabs filter, each WhatsApp button opens a chat with the right property and **Eliane's** number, and the card link opens the right page.
+- per device: the carousel moves every 3.5 s and stops while touched, Ver mais adds cards, the tabs and filters narrow the list (on phones the Filtros sheet opens, scrolls and closes), each WhatsApp button opens a chat with the right property and **Eliane's** number, and the card link opens the right page.
 
 The carousel deliberately stands still when:
 - the mouse rests over the cards (desktop), until it moves away;
