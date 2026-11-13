@@ -33,7 +33,7 @@ Under the type tabs: **Bairro** (several at once), **Quartos** and **Vagas** (at
 - [ ] **Neighbourhood comes from the title** ("Apartamento no Itaim Bibi" → Itaim Bibi). A new listing whose title doesn't end in "no/na <bairro>" stops the build with its code. If titles ever change style, add a `bairro` column to `data/listings.csv` instead.
 - [ ] **New copy, please confirm:** "Filtros", "Bairro", "Quartos", "Vagas", "Área", "Todos"/"Todas", the ranges above, "Limpar filtros", "Ver N imóveis", "Nenhum imóvel encontrado com esses filtros." The spec has no wording for filters.
 - [ ] **Price filter:** later. It needs a price column in the CSV, and the spec says not to show prices, so decide first whether a range filter without visible prices is wanted. It would be one more entry in `src/lib/filters.ts`.
-- [ ] **Performance on Vercel:** local Lighthouse was too noisy on 2026-11-14 to judge (the previous build scored 0.73–0.99 in the same session, the new one 0.59–0.96, with the same blocking time). The script grows from ~1 KB to ~2.3 KB gzipped. Re-check on the preview.
+- [x] **Performance on Vercel (2026-11-14, back to back, 2 runs each):** filters preview mobile 0.88–0.95, LCP 2.1 s, TBT 200–422 ms, 306 KB; the current preview without filters 0.89–0.95, LCP 2.0–2.1 s, TBT 220–382 ms, 302 KB. Desktop 1.0 for both (LCP 0.33 s, +5 KB). Accessibility 1.0. The filters add no measurable cost. Both score lower than on 2026-11-13 (0.99–1.0) because this machine was slower during the run, not because of the page. Run against a deployed URL with a config that has no `staticDistDir`, or lhci serves the local build instead.
 
 ## Waiting on a decision or an account
 
