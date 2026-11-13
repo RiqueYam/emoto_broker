@@ -2,6 +2,7 @@ import { defineCollection } from 'astro:content';
 import { z } from 'astro/zod';
 import { readFile } from 'node:fs/promises';
 import { parse } from 'csv-parse/sync';
+import { BROKER } from './lib/site';
 
 const CSV_PATH = 'data/listings.csv';
 
@@ -26,8 +27,14 @@ const rowSchema = z
     vagas: optionalInt,
     destaque: z.enum(['sim', 'nao']).transform((v) => v === 'sim'),
     ordem: optionalInt,
-    foto_url: z.url(),
-    coelho_url: z.url().refine((u) => u.includes('corretor=18039'), 'coelho_url sem ?corretor=18039'),
+    // Only used by scripts/fetch-images.ts; may be empty when the photo is added by hand
+    foto_url: z.union([z.literal(''), z.url()]),
+    coelho_url: z
+      .url()
+      .refine(
+        (u) => !BROKER.coelhoId || u.includes(`corretor=${BROKER.coelhoId}`),
+        `coelho_url sem ?corretor=${BROKER.coelhoId} (BROKER.coelhoId em src/lib/site.ts)`,
+      ),
   })
   .superRefine((r, ctx) => {
     if (r.area_tipo === 'construidos' && r.terreno_m2 === undefined)

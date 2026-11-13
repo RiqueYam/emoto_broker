@@ -89,10 +89,15 @@ picture {
   min-height: 13rem;
   max-height: 24rem;
   object-fit: cover;
-  object-position: 50% 28%;
+  object-position: 50% 28%; // overridden per image from HERO.position (src/lib/site.ts)
   @include media-breakpoint-up(sm) {
     max-height: 28rem;
   }
+}
+
+// Shown while no hero image is chosen (HERO.file = null): same size and fade, as in the mockups
+.hero__img--placeholder {
+  background: #3a332c;
 }
 
 .hero__fade {

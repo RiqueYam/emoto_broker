@@ -1,4 +1,6 @@
-# CLAUDE.md — Edu Soares, Private Broker landing page
+# CLAUDE.md — Private Broker landing page
+
+> **The broker is now Eliane Emoto (changed 2026-11-13).** This file and `docs/spec-current-style.md` were written for Edu Soares. Wherever they name Edu, read Eliane. Every name, contact and identity detail lives in `BROKER` and `HERO` in `src/lib/site.ts`. Change it there, never hard-code it. Fields marked TODO in that file still hold Edu's details and are waiting for Eliane's. The ordered to-do list is `docs/next-steps.md`.
 
 ## What this project is
 A new one-page site, built from scratch, for Carlos Eduardo (Edu) Soares, private broker associated with Coelho da Fonseca (CRECI 310960). It replaces the current Lovable page at edusoaresbroker.com.br/imoveis. Visitors mostly arrive from Instagram on a phone; the page's job is to get them into a WhatsApp conversation about a specific property.
@@ -88,9 +90,10 @@ Rules:
 - Validate at build time: a missing codigo, an unknown tipo_tab or a non-numeric area fails the build with the row number.
 
 ## Copy
-- Card WhatsApp message: `Olá, Edu. Vi no seu site o imóvel cód. {codigo} ({titulo}) e gostaria de mais informações.`
-- Floating button and footer: `Olá, Edu. Vim pelo site e gostaria de conversar sobre um imóvel.`
-- Title and description: `Imóveis de alto padrão à venda em São Paulo — Edu Soares | Coelho da Fonseca`.
+`{Nome}`/`{nome}` come from `BROKER` in `src/lib/site.ts` (currently Eliane / Eliane Emoto).
+- Card WhatsApp message: `Olá, {Nome}. Vi no seu site o imóvel cód. {codigo} ({titulo}) e gostaria de mais informações.`
+- Floating button and footer: `Olá, {Nome}. Vim pelo site e gostaria de conversar sobre um imóvel.`
+- Title: `Imóveis de alto padrão à venda em São Paulo — {nome completo} | Coelho da Fonseca`.
 
 ## Workflow
 - Branch `main` for production; build features on branches with small commits.

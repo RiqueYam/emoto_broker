@@ -16,7 +16,26 @@ export const BROKER = {
   whatsapp: '5511961942319',
   /** TODO: Eliane's Instagram (this is Edu's). */
   instagram: 'https://instagram.com/edusoares.broker',
+  /**
+   * TODO: Eliane's broker ID at Coelho da Fonseca (this is Edu's). Every `coelho_url` in
+   * data/listings.csv must contain `corretor=<id>`, or the build stops. Set to null to drop the check.
+   */
+  coelhoId: '18039' as string | null,
 } as const;
+
+/**
+ * Image at the top of the page. To switch it:
+ *   1. put the photo in src/assets/hero/ (jpg, png, webp or avif; ≥ 1920 px wide is best),
+ *   2. set `file` to its file name, e.g. 'eliane-emoto.jpg',
+ *   3. describe it in `alt`, and move the crop with `position` (x% y%) if the face is cut off,
+ *   4. run `npx tsx scripts/make-brand-assets.ts` to refresh the sharing image.
+ * With `file: null` the page shows a plain warm-dark panel with the same fade (as in the mockups).
+ */
+export const HERO = {
+  file: null as string | null,
+  alt: `${BROKER.name}, Private Broker`,
+  position: '50% 28%',
+};
 
 /** TODO: Eliane's domain (this is Edu's). Used for canonical, Open Graph, sitemap and robots.txt. */
 export const SITE_URL = 'https://edusoaresbroker.com.br';

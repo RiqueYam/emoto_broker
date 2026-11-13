@@ -6,15 +6,15 @@ import Listings from '../components/Listings.astro';
 import Footer from '../components/Footer.astro';
 import FloatingWhatsApp from '../components/FloatingWhatsApp.astro';
 import { featured, loadListings } from '../lib/listings';
-import { portraitSources } from '../lib/portrait';
+import { heroImage } from '../lib/hero';
 
 const all = await loadListings();
-const portrait = await portraitSources();
+const hero = await heroImage();
 ---
 
-<Base portraitAvif={portrait.avif}>
+<Base heroAvif={hero?.avif}>
   <div class="page">
-    <Hero portrait={portrait} />
+    <Hero image={hero} />
     <Selecao items={featured(all)} />
     <Listings listings={all} />
     <Footer />

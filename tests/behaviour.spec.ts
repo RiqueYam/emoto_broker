@@ -1,6 +1,21 @@
 import { test, expect, type Page } from '@playwright/test';
+import { readFileSync } from 'node:fs';
+import { parse } from 'csv-parse/sync';
+import { BROKER } from '../src/lib/site';
+import { GENERIC_MESSAGE, listingMessage, waUrl } from '../src/lib/whatsapp';
 
-const FEATURED = ['549404', '649403', '72911', '689204', '265678', '352080'];
+// Expectations come from the same data and settings as the site, so editing them never breaks the tests
+const rows: { codigo: string; tipo_tab: string; destaque: string; ordem: string }[] = parse(
+  readFileSync('data/listings.csv', 'utf8'),
+  { columns: true, skip_empty_lines: true, bom: true },
+);
+const FEATURED = rows
+  .filter((r) => r.destaque === 'sim')
+  .sort((a, b) => Number(a.ordem) - Number(b.ordem))
+  .map((r) => r.codigo);
+const TOTAL = rows.length;
+const COUNT = (tipo: string) => rows.filter((r) => r.tipo_tab === tipo).length;
+const N_FEAT = FEATURED.length;
 const isMobile = (page: Page) => (page.viewportSize()?.width ?? 0) < 768;
 
 const visibleCards = (page: Page) => page.locator('.listing-grid .card-col:visible');
@@ -14,11 +29,11 @@ test.describe('Seleção carousel (spec §3)', () => {
     await page.goto('/');
     const root = page.locator('#selecao');
     await expect(root).toHaveAttribute('aria-roledescription', 'carrossel');
-    await expect(root).toHaveAttribute('aria-label', 'Seleção de Eliane');
+    await expect(root).toHaveAttribute('aria-label', BROKER.selecaoTitle);
     const slides = root.locator('.splide__slide');
-    await expect(slides).toHaveCount(6);
-    for (let i = 0; i < 6; i++) {
-      await expect(slides.nth(i)).toHaveAttribute('aria-label', `${i + 1} de 6`);
+    await expect(slides).toHaveCount(N_FEAT);
+    for (let i = 0; i < N_FEAT; i++) {
+      await expect(slides.nth(i)).toHaveAttribute('aria-label', `${i + 1} de ${N_FEAT}`);
       await expect(slides.nth(i).locator('.feat-code')).toContainText(FEATURED[i]);
     }
   });
@@ -27,11 +42,11 @@ test.describe('Seleção carousel (spec §3)', () => {
     await page.goto('/');
     const dots = page.locator('.selecao__dot');
     if (isMobile(page)) {
-      await expect(dots).toHaveCount(6);
+      await expect(dots).toHaveCount(N_FEAT);
       await expect(dots.first()).toHaveAttribute('aria-label', 'Ir para o imóvel 1');
       await expect(page.locator('.selecao__arrows')).toBeHidden();
     } else {
-      await expect(dots).toHaveCount(4);
+      await expect(dots).toHaveCount(N_FEAT - 2); // 3 cards visible on desktop
       await expect(dots.first()).toHaveAttribute('aria-label', 'Ir para o grupo 1');
       await expect(page.locator('.splide__arrow--next')).toBeVisible();
     }
@@ -113,11 +128,11 @@ test.describe('Todos os imóveis + Ver mais (spec §4)', () => {
     await page.goto('/');
     const batch = isMobile(page) ? 6 : 9;
     await expect(visibleCards(page)).toHaveCount(batch);
-    await expect(page.locator('.more__count')).toHaveText(`Mostrando ${batch} de 48`);
+    await expect(page.locator('.more__count')).toHaveText(`Mostrando ${batch} de ${TOTAL}`);
     const btn = page.locator('.more__btn');
     await btn.click();
     await expect(visibleCards(page)).toHaveCount(batch * 2);
-    await expect(page.locator('.more__count')).toHaveText(`Mostrando ${batch * 2} de 48`);
+    await expect(page.locator('.more__count')).toHaveText(`Mostrando ${batch * 2} de ${TOTAL}`);
     // Focus moves to the first new card
     const focusedCode = await page.evaluate(
       () => document.activeElement?.closest('.card-col')?.querySelector('.card-code')?.textContent,
@@ -130,21 +145,22 @@ test.describe('Todos os imóveis + Ver mais (spec §4)', () => {
     expect(focusedCode).toBe(expected);
     expect(page.url()).toContain(`mostrar=${batch * 2}`);
     while (await btn.isVisible()) await btn.click();
-    await expect(visibleCards(page)).toHaveCount(48);
-    await expect(page.locator('.more__count')).toHaveText('Mostrando 48 de 48');
+    await expect(visibleCards(page)).toHaveCount(TOTAL);
+    await expect(page.locator('.more__count')).toHaveText(`Mostrando ${TOTAL} de ${TOTAL}`);
   });
 
   test('changing tab resets the batch and counts the tab', async ({ page }) => {
     await page.goto('/');
     const batch = isMobile(page) ? 6 : 9;
     await page.locator('.more__btn').click();
-    await page.getByRole('button', { name: 'Cobertura (16)' }).click();
-    await expect(page.getByRole('button', { name: 'Cobertura (16)' })).toHaveAttribute(
+    await page.getByRole('button', { name: `Cobertura (${COUNT('Cobertura')})` }).click();
+    await expect(page.getByRole('button', { name: `Cobertura (${COUNT('Cobertura')})` })).toHaveAttribute(
       'aria-pressed',
       'true',
     );
-    await expect(visibleCards(page)).toHaveCount(batch);
-    await expect(page.locator('.more__count')).toHaveText(`Mostrando ${batch} de 16`);
+    const cob = COUNT('Cobertura');
+    await expect(visibleCards(page)).toHaveCount(Math.min(batch, cob));
+    await expect(page.locator('.more__count')).toHaveText(`Mostrando ${Math.min(batch, cob)} de ${cob}`);
     expect(new URL(page.url()).search).toBe('?tipo=cobertura');
     const tipos = await visibleCards(page).evaluateAll((els) =>
       els.map((e) => (e as HTMLElement).dataset.tipo),
@@ -154,16 +170,21 @@ test.describe('Todos os imóveis + Ver mais (spec §4)', () => {
 
   test('a shared link restores tab and count', async ({ page }) => {
     await page.goto('/?tipo=casa&mostrar=9');
-    await expect(page.getByRole('button', { name: 'Casa (9)' })).toHaveAttribute('aria-pressed', 'true');
-    await expect(visibleCards(page)).toHaveCount(9);
-    await expect(page.locator('.more__btn')).toBeHidden();
+    await expect(page.getByRole('button', { name: `Casa (${COUNT('Casa')})` })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    const casa = COUNT('Casa');
+    await expect(visibleCards(page)).toHaveCount(Math.min(9, casa));
+    if (casa <= 9) await expect(page.locator('.more__btn')).toBeHidden();
+    else await expect(page.locator('.more__btn')).toBeVisible();
   });
 
   test('every card shows without JavaScript', async ({ browser }, info) => {
     const ctx = await browser.newContext({ ...info.project.use, javaScriptEnabled: false });
     const page = await ctx.newPage();
     await page.goto('/');
-    await expect(visibleCards(page)).toHaveCount(48);
+    await expect(visibleCards(page)).toHaveCount(TOTAL);
     await expect(page.locator('.more')).toBeHidden();
     await ctx.close();
   });
@@ -173,7 +194,7 @@ test.describe('WhatsApp button and links (spec §5, §7)', () => {
   test('every card ends with its own WhatsApp button, never nested in a link', async ({ page }) => {
     await page.goto('/');
     const cards = page.locator('.card-item, .selecao__slide');
-    await expect(cards).toHaveCount(54);
+    await expect(cards).toHaveCount(TOTAL + N_FEAT);
     const rows = await cards.evaluateAll((els) =>
       els.map((el) => ({
         code: el.querySelector('.card-code')!.textContent!.replace(/\D/g, ''),
@@ -184,10 +205,10 @@ test.describe('WhatsApp button and links (spec §5, §7)', () => {
       })),
     );
     for (const r of rows) {
-      const msg = `Olá, Eliane. Vi no seu site o imóvel cód. ${r.code} (${r.title}) e gostaria de mais informações.`;
-      expect(r.wa).toBe(`https://wa.me/5511961942319?text=${encodeURIComponent(msg)}`);
+      expect(r.wa).toBe(waUrl(listingMessage(r.code, r.title)));
+      expect(r.wa).toContain(`wa.me/${BROKER.whatsapp}?text=`);
       expect(r.label).toBe(`Consultar no WhatsApp sobre ${r.title}, código ${r.code}`);
-      expect(r.coelho).toContain('corretor=18039');
+      if (BROKER.coelhoId) expect(r.coelho).toContain(`corretor=${BROKER.coelhoId}`);
     }
     expect(await page.locator('a a').count()).toBe(0);
     await expect(page.locator('.wa-btn').first()).toHaveAttribute('target', '_blank');
@@ -195,7 +216,7 @@ test.describe('WhatsApp button and links (spec §5, §7)', () => {
 
   test('floating and footer buttons use the generic message', async ({ page }) => {
     await page.goto('/');
-    const generic = `https://wa.me/5511961942319?text=${encodeURIComponent('Olá, Eliane. Vim pelo site e gostaria de conversar sobre um imóvel.')}`;
+    const generic = waUrl(GENERIC_MESSAGE);
     await expect(page.locator('.wa-float')).toHaveAttribute('href', generic);
     await expect(page.locator('.site-footer__links a').first()).toHaveAttribute('href', generic);
   });
@@ -240,9 +261,9 @@ test.describe('Responsiveness (spec §6 INP < 200 ms, lab estimate)', () => {
         l.getEntries().forEach((e) => (window as unknown as { __ev: number[] }).__ev.push(e.duration)),
       ).observe({ type: 'event', durationThreshold: 16, buffered: true } as PerformanceObserverInit);
     });
-    await page.getByRole('button', { name: 'Cobertura (16)' }).click();
+    await page.getByRole('button', { name: `Cobertura (${COUNT('Cobertura')})` }).click();
     await page.locator('.more__btn').click();
-    await page.getByRole('button', { name: 'Todos (48)' }).click();
+    await page.getByRole('button', { name: `Todos (${TOTAL})` }).click();
     await page.locator('.selecao__dot').nth(1).click();
     await page.waitForTimeout(500);
     const worst = await page.evaluate(() => Math.max(0, ...(window as unknown as { __ev: number[] }).__ev));

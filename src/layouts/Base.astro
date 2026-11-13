@@ -8,12 +8,13 @@ import playfair500 from '@fontsource/playfair-display/files/playfair-display-lat
 import '../styles/main.scss';
 import IconSprite from '../components/IconSprite.astro';
 import { BROKER, DESCRIPTION, INSTAGRAM_URL, OG_DESCRIPTION, SITE_URL, TITLE } from '../lib/site';
-import { PORTRAIT_SIZES } from '../lib/portrait';
+import { HERO_SIZES } from '../lib/hero';
 
 interface Props {
-  portraitAvif: string;
+  /** AVIF srcset of the hero image, preloaded; absent while the placeholder panel is shown */
+  heroAvif?: string;
 }
-const { portraitAvif } = Astro.props;
+const { heroAvif } = Astro.props;
 const canonical = new URL('/', SITE_URL).href;
 const ogImage = new URL('/og-image.jpg', SITE_URL).href;
 
@@ -54,14 +55,16 @@ const jsonLd = {
     <meta name="author" content={BROKER.name} />
     <meta name="robots" content="index, follow" />
     <link rel="canonical" href={canonical} />
-    <link
-      rel="preload"
-      as="image"
-      type="image/avif"
-      imagesrcset={portraitAvif}
-      imagesizes={PORTRAIT_SIZES}
-      fetchpriority="high"
-    />
+    {heroAvif && (
+      <link
+        rel="preload"
+        as="image"
+        type="image/avif"
+        imagesrcset={heroAvif}
+        imagesizes={HERO_SIZES}
+        fetchpriority="high"
+      />
+    )}
     <link rel="preload" as="font" type="font/woff2" href={interRegular} crossorigin />
     <link rel="preload" as="font" type="font/woff2" href={playfair500} crossorigin />
     <link rel="icon" href="/favicon.ico" sizes="16x16 32x32" />

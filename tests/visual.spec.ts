@@ -54,7 +54,7 @@ test('full-page screenshots for review', async ({ page }, info) => {
   await page.screenshot({ path: `${OUT}/new-${info.project.name}-fold.png` });
 });
 
-test('header block is identical to the live page (above the moved helper line)', async ({
+test('header text block is identical to the live page (below the image, above the moved helper line)', async ({
   page,
   browser,
 }, info) => {
@@ -83,7 +83,11 @@ test('header block is identical to the live page (above the moved helper line)',
     const r = el.getBoundingClientRect();
     return [Math.floor(r.top) - 2, Math.ceil(r.bottom) + 2] as [number, number];
   });
-  const ratio = await diffRatio(a, b, width, bottom, [name]);
+  // The top image is switchable (HERO in src/lib/site.ts) and no longer Edu's portrait; skip it too
+  const figureBottom = await page
+    .locator('.hero__figure')
+    .evaluate((el) => Math.ceil(el.getBoundingClientRect().bottom));
+  const ratio = await diffRatio(a, b, width, bottom, [[0, figureBottom], name]);
   console.log(`${info.project.name}: ${(ratio * 100).toFixed(3)}% of header pixels differ`);
   expect(ratio).toBeLessThan(0.002);
   await live.close();

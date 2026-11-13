@@ -1,13 +1,13 @@
 /**
  * Renders the monogram favicons and the 1200×630 sharing image with Chromium so they
- * use the site's own fonts (Fontsource). Run after fetch-images:
+ * use the site's own fonts (Fontsource). Run again after changing BROKER or HERO in src/lib/site.ts:
  *   npx tsx scripts/make-brand-assets.ts
  */
 import { chromium } from '@playwright/test';
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import sharp from 'sharp';
-import { BROKER } from '../src/lib/site.ts';
+import { BROKER, HERO } from '../src/lib/site.ts';
 
 // Monogram from the broker's initials, e.g. "Eliane Emoto" → E + E
 const [first = '', ...rest] = BROKER.name.split(/\s+/);
@@ -15,12 +15,18 @@ const initials = [first[0] ?? '', rest.at(-1)?.[0] ?? ''].map((c) => c.toUpperCa
 
 const font = (p: string) => readFile(path.resolve('node_modules', p)).then((b) => b.toString('base64'));
 
-const [inter400, inter500, playfair500, portrait] = await Promise.all([
+const [inter400, inter500, playfair500, heroPhoto] = await Promise.all([
   font('@fontsource/inter/files/inter-latin-400-normal.woff2'),
   font('@fontsource/inter/files/inter-latin-500-normal.woff2'),
   font('@fontsource/playfair-display/files/playfair-display-latin-500-normal.woff2'),
-  sharp('src/assets/portrait/banner-edu-soares.jpg').resize(1200).jpeg({ quality: 85 }).toBuffer(),
+  // Same image as the top of the page (HERO in src/lib/site.ts); the dark panel while none is set
+  HERO.file
+    ? sharp(path.join('src/assets/hero', HERO.file)).resize(1200).jpeg({ quality: 85 }).toBuffer()
+    : Promise.resolve(null),
 ]);
+const heroBackground = heroPhoto
+  ? `url(data:image/jpeg;base64,${heroPhoto.toString('base64')}) ${HERO.position}/cover`
+  : '#3A332C';
 
 const fonts = `
 @font-face{font-family:Inter;font-weight:400;src:url(data:font/woff2;base64,${inter400}) format('woff2')}
@@ -36,7 +42,7 @@ span{color:#836731}</style><body>${initials[0]}<span>${initials[1]}</span></body
 
 const og = `<!doctype html><style>${fonts}
 body{width:1200px;height:630px;background:#FFFDF9;font-family:Inter;color:#1D1D1F;position:relative;overflow:hidden}
-.ph{position:absolute;inset:0 0 auto 0;height:380px;background:url(data:image/jpeg;base64,${portrait.toString('base64')}) 50% 28%/cover}
+.ph{position:absolute;inset:0 0 auto 0;height:380px;background:${heroBackground}}
 .fade{position:absolute;left:0;right:0;top:250px;height:130px;background:linear-gradient(rgba(255,253,249,0),#FFFDF9)}
 .t{position:absolute;left:80px;right:80px;bottom:56px}
 .n{font-size:30px;line-height:36px;letter-spacing:.3px}
