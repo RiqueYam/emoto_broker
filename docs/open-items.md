@@ -48,4 +48,14 @@ Local Lighthouse scores depend heavily on how fast this machine's CPU is at the 
 - **Mobile, standard 4× CPU slowdown, plain-TS build (5 runs):** Performance 0.99–1.0, LCP 1.57–1.67 s, TBT 0–24 ms, CLS ≤ 0.003, 318 KB transferred, 17 KB JS. All budgets pass.
 - **Mobile, 9× slowdown (simulates the slower host seen earlier, 6 runs each):** plain-TS 0.95–0.99, TBT 0–202 ms; the previous Alpine build 0.69–0.96, TBT 171–893 ms.
 - **Desktop:** Performance 1.0, LCP ~0.48 s, TBT 0, CLS 0, 237 KB transferred.
-- [ ] Confirm on the preview deployment (Lighthouse CI: `npm run lhci` with `--collect.url` set to the preview URL instead of `staticDistDir`).
+- [x] **Confirmed on Vercel (https://emotobroker.vercel.app, 2026-11-13, 5 runs each, all budget assertions pass):**
+  - Mobile: Performance 0.99–1.0, Accessibility / Best practices / SEO 1.0, LCP 1.68–1.80 s, TBT 0–33 ms, CLS ≤ 0.003, **313 KB** transferred (images 203, fonts 70, HTML with inline CSS 24, JS 16).
+  - Desktop: Performance 1.0, LCP 0.37–0.45 s, TBT 0–19 ms, CLS 0, **234 KB** transferred.
+  - The current page loads ~1.7 MB.
+  - Playwright suite against the deployment: 35 passed, 3 skipped by design. The header differs from the live page in 0.008 % of pixels (desktop) / 0.042 % (mobile).
+
+## Vercel setup
+
+- `emotobroker.vercel.app` serves the deployment of `feat/site-rebuild` at commit `5d0b934`. Later pushes build as previews, which Vercel Authentication protects, so automated checks and Edu can't open them.
+- [ ] **`/imoveis/` (trailing slash)** still answered 200 on `5d0b934`. The fix (commit `e9fe0ad`, explicit rules in `vercel.json`) built successfully but sits on a protected preview. To verify it, either turn off Vercel Authentication (Settings → Deployment Protection) or promote that deployment.
+- `main` fails to build on Vercel because it holds only the pack (no `package.json`). That's expected until the site is merged into `main` after approval.
