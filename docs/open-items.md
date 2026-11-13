@@ -38,12 +38,14 @@ The fidelity rule says to match the live page, and spec §1 says the spec wins o
 - **Bootstrap.** reboot, containers, grid, buttons and visually-hidden are imported, plus the Sass variables. The utilities API (no utility classes are used; it would add ~10 KB of render-blocking CSS) and nav (the type filter is a group of `aria-pressed` buttons, as on the live page) are left out.
 - **Splide autoplay.** Splide handles slides, arrows, dots, ARIA, breakpoints and reduced motion. The 3.5 s advance is a ~30-line timer in `src/scripts/selecao.ts` instead of Splide's Autoplay component. Splide's version runs a `requestAnimationFrame` loop every frame while playing, so Lighthouse never saw the page go idle and couldn't finish a run. Behaviour is unchanged: it pauses on hover, touch, focus inside and a hidden tab, restarts the timer after any move, and doesn't autoplay with reduced motion. The listed fallback (Embla + autoplay plugin) remains an option if you prefer a library for this.
 - **Splide options added:** `focus: 0` + `omitEnd: true`, so desktop has 4 positions/dots (0–3) and mobile 6, as in spec §3.
-- **Alpine scope.** `x-data` sits only on the tabs and the Ver mais block. Card visibility is one `Alpine.effect` driven by an `Alpine.store`, so Alpine doesn't have to walk the 48 cards (this was ~400 ms of main-thread time at 4× CPU throttling).
+- **Tabs + Ver mais use the plain-TS fallback, not Alpine.js** (approved 2026-11-13). `src/scripts/listings.ts` is ~1 KB gzipped against Alpine's ~21 KB. Behaviour is unchanged and covered by the same tests: counter, reset on tab change, button hides at the end, focus moves to the first new card, `?tipo=…&mostrar=…`, and every card shows without JavaScript. `alpinejs` has been uninstalled.
 - **Eager images.** Spec §6 says to load the first list card eagerly. With Seleção now above the list, that card is below the fold on both sizes, so it is lazy. Only the portrait and the first Seleção photo are eager.
 
 ## Performance (local Lighthouse runs, see the report)
 
-- [ ] **Mobile Lighthouse Performance ≥ 90 is not reliably met yet.** Local runs on this Windows machine ranged from 0.77 to 0.98 across sessions (median 0.85 in the latest set). LCP (1.6–2.2 s), CLS (≤ 0.003) and every byte budget pass. What remains is main-thread time: style/layout of the ~2,400-node page plus evaluating Alpine (~21 KB gz) and Splide (~15 KB gz). Options, if the preview run confirms it:
-  1. Replace Alpine with the plain-TS fallback CLAUDE.md lists for tabs + Ver mais (saves ~21 KB gz of JS and its evaluation).
-  2. Server-render only the first batch and fetch the rest. This would break "every card shows without JavaScript", so it is not recommended.
-- Desktop: Performance 1.0, LCP ~0.5 s, CLS 0, all budgets pass.
+Local Lighthouse scores depend heavily on how fast this machine's CPU is at the moment (Lighthouse's `benchmarkIndex` varied from ~1,500 to ~3,500 during the session). The comparisons below were run back to back, so they are fair to each other. The real check is still the preview deployment.
+
+- **Mobile, standard 4× CPU slowdown, plain-TS build (5 runs):** Performance 0.99–1.0, LCP 1.57–1.67 s, TBT 0–24 ms, CLS ≤ 0.003, 318 KB transferred, 17 KB JS. All budgets pass.
+- **Mobile, 9× slowdown (simulates the slower host seen earlier, 6 runs each):** plain-TS 0.95–0.99, TBT 0–202 ms; the previous Alpine build 0.69–0.96, TBT 171–893 ms.
+- **Desktop:** Performance 1.0, LCP ~0.48 s, TBT 0, CLS 0, 237 KB transferred.
+- [ ] Confirm on the preview deployment (Lighthouse CI: `npm run lhci` with `--collect.url` set to the preview URL instead of `staticDistDir`).

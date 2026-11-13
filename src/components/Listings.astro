@@ -11,9 +11,9 @@ const countsBySlug = Object.fromEntries(TABS.map((t) => [tabSlug(t), counts[t]])
 ---
 
 <!--
-  Alpine scope is kept to the tabs and the Ver mais block (x-data). Card visibility is
-  one effect in src/scripts/listings.ts that toggles `hidden` on each column, so Alpine
-  never has to walk the 48 cards.
+  Tabs and Ver mais are driven by the plain script in src/scripts/listings.ts
+  (the CLAUDE.md fallback for Alpine). Without JavaScript every card shows and the
+  counter and button stay hidden.
 -->
 <main class="hairline-top" id="listings" data-counts={JSON.stringify(countsBySlug)}>
   <div class="container listings__head">
@@ -23,14 +23,13 @@ const countsBySlug = Object.fromEntries(TABS.map((t) => [tabSlug(t), counts[t]])
     <p class="helper-line">Selecione um imóvel para conhecer todos os detalhes.</p>
   </div>
 
-  <div class="container type-tabs" role="group" aria-label="Filtrar imóveis por tipo e região" x-data>
+  <div class="container type-tabs" role="group" aria-label="Filtrar imóveis por tipo e região">
     {TABS.map((t) => (
       <button
         type="button"
         class="btn pill type-tab"
         aria-pressed={t === 'Todos' ? 'true' : 'false'}
-        x-bind:aria-pressed={`$store.listings.tab === '${tabSlug(t)}' ? 'true' : 'false'`}
-        x-on:click={`$store.listings.select('${tabSlug(t)}')`}
+        data-tab={tabSlug(t)}
       >
         {t} ({counts[t]})
       </button>
@@ -54,15 +53,9 @@ const countsBySlug = Object.fromEntries(TABS.map((t) => [tabSlug(t), counts[t]])
     </div>
   </section>
 
-  <div class="container more" x-data x-cloak>
-    <span class="more__count" aria-live="polite" x-text="$store.listings.label"></span>
-    <button
-      type="button"
-      class="btn pill more__btn"
-      x-show="$store.listings.hasMore"
-      x-on:click="$store.listings.more()"
-      aria-controls="lista-imoveis"
-    >
+  <div class="container more" id="listings-more" hidden>
+    <span class="more__count" aria-live="polite"></span>
+    <button type="button" class="btn pill more__btn" aria-controls="lista-imoveis">
       Ver mais imóveis
     </button>
   </div>

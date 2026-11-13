@@ -12,11 +12,7 @@ picture {
   display: block;
 }
 
-[x-cloak] {
-  display: none !important;
-}
-
-// Before Alpine starts, hide cards beyond the first batch so the list doesn't flash 48 cards.
+// Before the listings script runs, hide cards beyond the first batch so the list doesn't flash 48 cards.
 // Without JavaScript the .js class is never set, so every card shows.
 .js:not(.listings-ready) {
   @include media-breakpoint-down(md) {

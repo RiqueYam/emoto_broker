@@ -7,7 +7,6 @@ type Params = Record<string, string | number | undefined>;
 declare global {
   interface Window {
     dataLayer?: unknown[];
-    Alpine?: unknown;
   }
 }
 

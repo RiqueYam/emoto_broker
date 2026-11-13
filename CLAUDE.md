@@ -20,7 +20,7 @@ The page must match the live site and the current-style mockups **exactly**: the
 | Site builder | Astro + TypeScript, static output | plain HTML/CSS output | — |
 | CSS | **Bootstrap 5.3.8** via Sass (not 6, it is alpha) | Sass variables carry the §2 values: `$body-bg #FFFDF9`, `$body-color #1D1D1F`, `$font-family-sans-serif` Inter, `$headings-font-family` Playfair Display, `$headings-font-weight 400`, base 16/24, `$border-radius-pill`, `$primary #1D1D1F`. Import only reboot, grid, utilities, buttons and nav. Site pieces (Coelho pill, divider, card, uppercase tracked tabs) are small custom classes in `src/styles/` | Custom class in place of any Bootstrap component that can't match |
 | Carousel | **Splide 4** (`@splidejs/splide`) | `perMove: 1, rewind: true, autoplay: true, interval: 3500, speed: 700, easing: 'cubic-bezier(0.22,0.61,0.36,1)', fixedWidth: '365px', gap: '32px', pauseOnHover: true, pauseOnFocus: true, pagination: true, arrows: true`. Breakpoint ≤ 767px: `fixedWidth: '290px', gap: '16px', speed: 600, arrows: false, padding: { right: '20px' }`. Default `reducedMotion` (autoplay paused, speed 0). `i18n` in Portuguese. Pause on `document.visibilitychange` (a few lines). Restyle arrows to the 44 px round buttons beside the title and dots to 24×2 / 12×2 px lines; don't use Splide's default theme CSS, only its core CSS | Embla Carousel + `embla-carousel-autoplay` |
-| Tabs + Ver mais | **Alpine.js 3** | `x-data` holding tab, shown and page size (9 desktop / 6 mobile via `matchMedia`); markup and classes as in the mockup | Small plain TS script |
+| Tabs + Ver mais | ~~Alpine.js 3~~ → **using the fallback** (2026-11-13: Alpine's ~21 KB gz cost the mobile Lighthouse budget; see `docs/open-items.md`) | Tab, shown and page size (9 desktop / 6 mobile via `matchMedia`) in `src/scripts/listings.ts`; markup and classes as in the mockup | Small plain TS script |
 | Data | Astro content collection + Zod schema loading `data/listings.csv` (parse with `papaparse` or `csv-parse`) | Invalid row → build fails with its row number | — |
 | Fonts | **Fontsource**: `@fontsource/inter` (300–700), `@fontsource/playfair-display` (400–700) | Same families/weights as the live page | Google Fonts `<link>` as on the live page |
 | Icons | Inline SVG **copied from the live page DOM** for spec icons, the link arrow and the floating WhatsApp button. Others via `astro-icon`: Lucide, plus Bootstrap Icons for brand marks | Same drawings as the live page | Hand-written inline SVG |
@@ -37,7 +37,7 @@ src/
   content.config.ts            (listings collection + Zod schema)
   components/ Hero.astro, Intro.astro, Selecao.astro, Listings.astro, PropertyCard.astro,
               WhatsAppButton.astro, Footer.astro, FloatingWhatsApp.astro
-  scripts/  selecao.ts (Splide setup), listings.ts (Alpine component)
+  scripts/  selecao.ts (Splide setup), listings.ts (tabs + Ver mais, plain TS)
   lib/      whatsapp.ts (URL + message helper)
   styles/   _variables.scss (Bootstrap overrides), main.scss (imports + custom classes)
   assets/   portrait/banner-edu-soares.jpg, listings/<codigo>.<ext>
