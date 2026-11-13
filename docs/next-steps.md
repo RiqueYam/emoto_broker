@@ -1,6 +1,6 @@
 # Next steps: from here to Eliane's site going live
 
-State on 2026-11-14: the site is built (now with filters by tipo, bairro, quartos, vagas and área, on branch `feat/filters`) and tested on branch `feat/site-rebuild` and carries Eliane Emoto's name, WhatsApp, Instagram, Coelho broker ID and the feminine wording. Two of Edu Soares's details remain (CRECI and domain), and the top image is a dark placeholder. The preview at https://emotobroker.vercel.app shows the last pushed commit; push to update it (Phase 4).
+State on 2026-11-14: the site is built (now with filters by tipo, bairro, quartos, vagas and área, merged into `feat/site-rebuild` on 2026-11-14) and tested on branch `feat/site-rebuild` and carries Eliane Emoto's name, WhatsApp, Instagram, Coelho broker ID and the feminine wording. Two of Edu Soares's details remain (CRECI and domain), and the top image is a dark placeholder. The latest version is at https://emotobroker-git-feat-site-rebuild-yugovisk.vercel.app, which follows every push to `feat/site-rebuild`. The short address https://emotobroker.vercel.app is Vercel's production address: it still shows an older Edu version and only changes when a deployment is promoted or `main` is updated (Phase 4).
 
 Work through the phases in order. Each step says what to collect, where to change it, and how to check it.
 
@@ -77,7 +77,11 @@ The last command serves the built site at http://localhost:4321 so you can look 
 
 ## Phase 4: update the preview on Vercel
 
-Vercel Authentication is off, so every push gets an open preview link, and `emotobroker.vercel.app` follows `feat/site-rebuild`.
+Vercel Authentication is off, so every push gets an open preview link. Each branch has a link that always shows its newest push: `emotobroker-git-<branch>-yugovisk.vercel.app` (for example `emotobroker-git-feat-site-rebuild-yugovisk.vercel.app`).
+
+To make the short address `emotobroker.vercel.app` show the newest build, either:
+- in Vercel → Deployments, open the newest `feat/site-rebuild` deployment's ⋯ menu → **Promote to Production** (one-off); or
+- Settings → Git → Production Branch → `feat/site-rebuild` (it then follows every push; set it back to `main` at launch).
 
 1. **Push** the local commits:
 
