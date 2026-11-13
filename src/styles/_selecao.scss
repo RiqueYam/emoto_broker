@@ -1,0 +1,232 @@
+// Seleção do Edu (spec §3). Splide core CSS only; arrows and dots restyled here.
+
+// Full-width hairline; content stays in the 1200 px column on desktop
+.selecao-wrap {
+  border-top: 1px solid $hairline;
+}
+
+.selecao {
+  padding: 40px 0 48px 20px; // mobile: track bleeds off the right edge
+  @include media-breakpoint-up(md) {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 64px 20px 72px;
+  }
+}
+
+.selecao__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 12px;
+  padding-right: 20px;
+  @include media-breakpoint-up(md) {
+    gap: 24px;
+    flex-wrap: wrap;
+    padding-right: 0;
+  }
+  .section-title {
+    margin-top: 8px;
+    @include media-breakpoint-up(md) {
+      margin-top: 12px;
+    }
+  }
+}
+
+.selecao__arrows {
+  display: none;
+  align-items: center;
+  gap: 12px;
+  @include media-breakpoint-up(md) {
+    display: flex;
+  }
+}
+
+.selecao__arrow {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: $border-radius-pill;
+  border: 1px solid $hairline;
+  background: transparent;
+  color: $ink;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+  &:hover {
+    border-color: $bronze;
+  }
+  &--next {
+    border-color: $ink;
+    background: $ink;
+    color: $paper;
+    &:hover {
+      border-color: #000;
+      background: #000;
+    }
+  }
+  &:focus-visible {
+    outline: 2px solid $bronze;
+    outline-offset: 2px;
+  }
+}
+
+.selecao .splide__track {
+  margin-top: 24px;
+  @include media-breakpoint-up(md) {
+    margin-top: 32px;
+  }
+}
+
+// Widths also set before Splide mounts (and without JS) so nothing shifts
+.selecao .splide__list {
+  gap: 0;
+}
+.selecao__slide {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex: 0 0 290px;
+  width: 290px;
+  margin-right: 16px;
+  @include media-breakpoint-up(md) {
+    flex-basis: 365px;
+    width: 365px;
+    margin-right: 32px;
+  }
+}
+
+.selecao__arrow svg path {
+  stroke-width: 1.5;
+}
+
+.feat-photo {
+  position: relative;
+  overflow: hidden;
+  border-radius: $border-radius;
+  background: $placeholder;
+  img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+    transition: transform 0.9s cubic-bezier(0, 0, 0.2, 1);
+  }
+}
+
+.card-link:hover .feat-photo img {
+  transform: scale(1.04);
+}
+
+.feat-badge {
+  position: absolute;
+  z-index: 1;
+  top: 12px;
+  left: 12px;
+  padding: 4px 10px;
+  border-radius: $border-radius-pill;
+  background: $ink;
+  color: $paper;
+  font-size: 9.92px;
+  line-height: 14px;
+  font-weight: 500;
+  letter-spacing: 1.39px;
+  text-transform: uppercase;
+  @include media-breakpoint-up(md) {
+    top: 14px;
+    left: 14px;
+    padding: 5px 12px;
+    font-size: 10.88px;
+    line-height: 16px;
+    letter-spacing: 1.52px;
+  }
+}
+
+.feat-line {
+  margin: 14px 0 0;
+  font-size: 12px;
+  line-height: 19.5px;
+  color: $muted;
+  @include media-breakpoint-up(md) {
+    margin-top: 15px;
+  }
+}
+
+.feat-title {
+  margin: 10px 0 0;
+  font-size: 20px;
+  line-height: 27.5px;
+  letter-spacing: -0.5px;
+  @include media-breakpoint-up(md) {
+    margin-top: 12px;
+    font-size: 22px;
+    line-height: 30.25px;
+    letter-spacing: -0.55px;
+  }
+}
+
+.feat-code {
+  margin-top: 6px;
+  @include media-breakpoint-up(md) {
+    margin-top: 8px;
+  }
+}
+
+// Dots: 28 px hit area, 24×2 active / 12×2 inactive lines
+.selecao__dots {
+  position: static;
+  margin-top: 16px;
+  padding: 0 20px 0 0;
+  gap: 2px;
+  @include media-breakpoint-up(md) {
+    margin-top: 28px;
+    padding: 0;
+    gap: 4px;
+  }
+}
+
+.selecao__dot {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  @include media-breakpoint-up(md) {
+    height: 24px;
+  }
+  &::before {
+    content: '';
+    display: block;
+    width: 12px;
+    height: 2px;
+    background: $dot-inactive;
+    transition:
+      width 0.3s ease,
+      background-color 0.3s ease;
+  }
+  &.is-active::before {
+    width: 24px;
+    background: $ink;
+  }
+  &:focus-visible {
+    outline: 2px solid $bronze;
+    outline-offset: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .selecao__dot::before,
+  .feat-photo img {
+    transition: none;
+  }
+}

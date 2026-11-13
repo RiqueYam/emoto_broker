@@ -1,0 +1,83 @@
+---
+import { Picture } from 'astro:assets';
+import { Icon } from 'astro-icon/components';
+import type { ListingView } from '../lib/listings';
+import WhatsAppButton from './WhatsAppButton.astro';
+
+interface Props {
+  items: ListingView[];
+}
+const { items } = Astro.props;
+---
+
+<div class="selecao-wrap">
+  <section class="splide selecao" id="selecao" aria-label="Seleção do Edu">
+    <div class="selecao__head">
+      <div>
+        <p class="eyebrow">Curadoria</p>
+        <h2 class="section-title">Seleção do Edu</h2>
+      </div>
+      <div class="splide__arrows selecao__arrows">
+        <button type="button" class="splide__arrow splide__arrow--prev selecao__arrow" aria-label="Anterior">
+          <Icon name="lucide:chevron-left" aria-hidden="true" />
+        </button>
+        <button
+          type="button"
+          class="splide__arrow splide__arrow--next selecao__arrow selecao__arrow--next"
+          aria-label="Próximo"
+        >
+          <Icon name="lucide:chevron-right" aria-hidden="true" />
+        </button>
+      </div>
+    </div>
+
+    <div class="splide__track">
+      <ul class="splide__list">
+        {
+          items.map((l, i) => (
+            <li class="splide__slide selecao__slide">
+              <a
+                class="card-link"
+                href={l.coelhoUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`Abrir ${l.titulo} (código ${l.codigo}) no site Coelho da Fonseca`}
+                data-track="coelho_click"
+                data-source="selecao"
+                data-codigo={l.codigo}
+              >
+                <div class="feat-photo">
+                  <span class="feat-badge">Destaque</span>
+                  <Picture
+                    src={l.photo}
+                    alt={`${l.titulo} — código ${l.codigo}`}
+                    formats={['avif', 'webp']}
+                    fallbackFormat="webp"
+                    width={730}
+                    height={487}
+                    fit="cover"
+                    widths={[290, 365, 580, 730]}
+                    sizes="(min-width: 768px) 365px, 290px"
+                    quality={60}
+                    loading={i < 3 ? 'eager' : 'lazy'}
+                    decoding="async"
+                  />
+                </div>
+                <p class="feat-line">{l.specs.map((s) => s.text).join(' · ')}</p>
+                <h3 class="feat-title">{l.titulo}</h3>
+                <p class="card-code feat-code">Código: {l.codigo}</p>
+              </a>
+              <WhatsAppButton href={l.waUrl} codigo={l.codigo} titulo={l.titulo} source="selecao" />
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+</div>
+
+<noscript><style>.selecao.splide { visibility: visible; }</style></noscript>
+
+<script>
+  import '../scripts/selecao';
+</script>
