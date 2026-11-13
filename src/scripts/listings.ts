@@ -128,7 +128,8 @@ if (root && grid && moreBox) {
     const active = activeCount();
     badge.textContent = active ? ` (${active})` : '';
     openBtn.classList.toggle('is-active', active > 0);
-    for (const b of clearButtons) if (b.closest('#filters-form')) b.hidden = active === 0;
+    // Every "Limpar filtros" shows only while a filter is on (the empty-state one is inside its message)
+    for (const b of clearButtons) if (!b.closest('#filters-empty')) b.hidden = active === 0;
     for (const d of details) {
       const value = summaryValue(d.dataset.filter!);
       d.querySelector('.filter__value')!.textContent = value;
@@ -172,7 +173,13 @@ if (root && grid && moreBox) {
       recompute();
       render();
       syncUrl();
-      track('filter_clear');
+      track('filter_clear', { source: b.closest('#filters-empty') ? 'empty' : sheet.open ? 'sheet' : 'bar' });
+      // The button just hid itself; keep keyboard focus nearby
+      if (b.hidden) {
+        if (sheet.open) applyBtn.focus();
+        else if (mobile.matches) openBtn.focus();
+        else details[0].querySelector('summary')!.focus();
+      }
     });
   }
 

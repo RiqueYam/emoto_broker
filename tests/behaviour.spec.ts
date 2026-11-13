@@ -302,6 +302,26 @@ test.describe('Filters (tipo, bairro, quartos, vagas, área)', () => {
     await expect(count(page)).toHaveText(`Mostrando ${Math.min(n, 6)} de ${n}`);
   });
 
+  test('Limpar filtros sits beside the filters and shows every listing again', async ({ page }) => {
+    await page.goto('/');
+    const quick = page.locator(isMobile(page) ? '.filters__clear--quick' : '#filters-bar .filters__clear');
+    await expect(quick).toBeHidden(); // nothing to clear yet
+    await page.goto('/?tipo=casa&quartos=4');
+    await expect(quick).toBeVisible();
+    // On the same row as the Filtros pill (phone) or the last dropdown (desktop)
+    const anchor = page.locator(isMobile(page) ? '.filters__open' : '.filter[data-filter="area"] > summary');
+    const [a, q] = await Promise.all([anchor.boundingBox(), quick.boundingBox()]);
+    expect(Math.abs(a!.y + a!.height / 2 - (q!.y + q!.height / 2))).toBeLessThan(8);
+    expect(q!.x).toBeGreaterThan(a!.x + a!.width);
+    await quick.click();
+    await expect(count(page)).toHaveText(`Mostrando ${isMobile(page) ? 6 : 9} de ${TOTAL}`);
+    await expect(quick).toBeHidden();
+    await expect(
+      page.locator(isMobile(page) ? '.filters__open' : '.filter[data-filter="tipo"] > summary'),
+    ).toBeFocused();
+    expect(new URL(page.url()).search).toBe('');
+  });
+
   test('resizing across the breakpoint moves the filters between bar and sheet', async ({ page }) => {
     test.skip(isMobile(page), 'starts on desktop');
     await page.goto('/?tipo=casa');
