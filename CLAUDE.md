@@ -39,7 +39,7 @@ src/
   content.config.ts            (listings collection + Zod schema)
   components/ Hero.astro, Intro.astro, Selecao.astro, Listings.astro, PropertyCard.astro,
               WhatsAppButton.astro, Footer.astro, FloatingWhatsApp.astro
-  scripts/  selecao.ts (Splide setup), listings.ts (tabs + Ver mais, plain TS)
+  scripts/  selecao.ts (Splide setup), listings.ts (filters incl. type + Ver mais, plain TS)
   lib/      whatsapp.ts (URL + message helper)
   styles/   _variables.scss (Bootstrap overrides), main.scss (imports + custom classes)
   assets/   portrait/banner-edu-soares.jpg, listings/<codigo>.<ext>

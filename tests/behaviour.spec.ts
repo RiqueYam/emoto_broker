@@ -38,6 +38,26 @@ const isMobile = (page: Page) => (page.viewportSize()?.width ?? 0) < 768;
 const visibleCards = (page: Page) => page.locator('.listing-grid .card-col:visible');
 const activeDot = (page: Page) => page.locator('.selecao__dot.is-active');
 
+/** Pick a filter option by value: desktop through its dropdown, mobile through the sheet (left open). */
+async function pick(page: Page, filter: string, value: string) {
+  if (isMobile(page)) {
+    if (!(await page.locator('#filters-sheet').evaluate((d: HTMLDialogElement) => d.open)))
+      await page.locator('.filters__open').click();
+    await page.locator(`#filters-sheet .filter[data-filter="${filter}"] input[value="${value}"]`).click();
+  } else {
+    await page.locator(`.filter[data-filter="${filter}"] > summary`).click();
+    await page.locator(`.filter[data-filter="${filter}"] input[value="${value}"]`).click();
+  }
+}
+/** Close the mobile sheet with its "Ver N imóveis" button (desktop: close the open dropdown). */
+async function done(page: Page) {
+  if (isMobile(page)) await page.locator('.filters-sheet__apply').click();
+  else await page.keyboard.press('Escape');
+}
+/** The live count next to a type option, e.g. "(16)". */
+const tipoCount = (page: Page, tipo: string) =>
+  page.locator(`.filter[data-filter="tipo"] input[value="${tipo}"] + span .filter__n`);
+
 test.describe('Seleção carousel (spec §3)', () => {
   // Splide mounts on idle; the 3.5 s timer starts at mount
   const mounted = (page: Page) => expect(page.locator('#selecao.is-initialized')).toHaveCount(1);
@@ -185,15 +205,13 @@ test.describe('Todos os imóveis + Ver mais (spec §4)', () => {
     await expect(page.locator('.more__count')).toHaveText(`Mostrando ${TOTAL} de ${TOTAL}`);
   });
 
-  test('changing tab resets the batch and counts the tab', async ({ page }) => {
+  test('changing the type resets the batch and counts the type', async ({ page }) => {
     await page.goto('/');
     const batch = isMobile(page) ? 6 : 9;
     await page.locator('.more__btn').click();
-    await page.getByRole('button', { name: `Cobertura (${COUNT('Cobertura')})` }).click();
-    await expect(page.getByRole('button', { name: `Cobertura (${COUNT('Cobertura')})` })).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    );
+    await expect(tipoCount(page, 'cobertura')).toHaveText(`(${COUNT('Cobertura')})`);
+    await pick(page, 'tipo', 'cobertura');
+    await done(page);
     const cob = COUNT('Cobertura');
     await expect(visibleCards(page)).toHaveCount(Math.min(batch, cob));
     await expect(page.locator('.more__count')).toHaveText(`Mostrando ${Math.min(batch, cob)} de ${cob}`);
@@ -202,14 +220,13 @@ test.describe('Todos os imóveis + Ver mais (spec §4)', () => {
       els.map((e) => (e as HTMLElement).dataset.tipo),
     );
     expect(new Set(tipos)).toEqual(new Set(['cobertura']));
+    if (isMobile(page)) await expect(page.locator('.filters__badge')).toHaveText(' (1)');
+    else await expect(page.locator('.filter[data-filter="tipo"] .filter__value')).toHaveText('Cobertura');
   });
 
-  test('a shared link restores tab and count', async ({ page }) => {
+  test('a shared link restores type and count', async ({ page }) => {
     await page.goto('/?tipo=casa&mostrar=9');
-    await expect(page.getByRole('button', { name: `Casa (${COUNT('Casa')})` })).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    );
+    await expect(page.locator('.filter[data-filter="tipo"] input[value="casa"]')).toBeChecked();
     const casa = COUNT('Casa');
     await expect(visibleCards(page)).toHaveCount(Math.min(9, casa));
     if (casa <= 9) await expect(page.locator('.more__btn')).toBeHidden();
@@ -227,36 +244,19 @@ test.describe('Todos os imóveis + Ver mais (spec §4)', () => {
   });
 });
 
-test.describe('Filters (bairro, quartos, vagas, área)', () => {
+test.describe('Filters (tipo, bairro, quartos, vagas, área)', () => {
   const count = (page: Page) => page.locator('.more__count');
-
-  /** Pick an option: desktop through its dropdown, mobile through the sheet (left open). */
-  async function pick(page: Page, filter: string, label: string) {
-    if (isMobile(page)) {
-      if (!(await page.locator('#filters-sheet').evaluate((d: HTMLDialogElement) => d.open)))
-        await page.locator('.filters__open').click();
-      await page
-        .locator(`#filters-sheet .filter[data-filter="${filter}"]`)
-        .getByLabel(label, { exact: true })
-        .click();
-    } else {
-      await page.locator(`.filter[data-filter="${filter}"] > summary`).click();
-      await page.locator(`.filter[data-filter="${filter}"]`).getByLabel(label, { exact: true }).click();
-    }
-  }
 
   test('quartos 4+ shows only matching cards, updates counts and the URL', async ({ page }) => {
     await page.goto('/');
-    await pick(page, 'quartos', '4+');
+    await pick(page, 'quartos', '4');
     const n = MATCHING({ quartos: 4 });
     await expect(count(page)).toHaveText(`Mostrando ${Math.min(n, isMobile(page) ? 6 : 9)} de ${n}`);
     const shown = await visibleCards(page).evaluateAll((els) =>
       els.map((e) => Number((e as HTMLElement).dataset.quartos)),
     );
     expect(shown.every((q) => q >= 4)).toBe(true);
-    await expect(page.locator('.type-tab[data-tab="cobertura"] .type-tab__n')).toHaveText(
-      String(MATCHING({ quartos: 4 }, 'Cobertura')),
-    );
+    await expect(tipoCount(page, 'cobertura')).toHaveText(`(${MATCHING({ quartos: 4 }, 'Cobertura')})`);
     expect(new URL(page.url()).searchParams.get('quartos')).toBe('4');
   });
 
@@ -265,12 +265,12 @@ test.describe('Filters (bairro, quartos, vagas, área)', () => {
     const f = { bairro: ['itaim-bibi', 'cidade-jardim'], vagas: 4, area: '250-500' };
     const n = MATCHING(f, 'Cobertura');
     await expect(visibleCards(page)).toHaveCount(n);
-    await expect(page.locator('.type-tab[data-tab="todos"] .type-tab__n')).toHaveText(String(MATCHING(f)));
+    await expect(tipoCount(page, 'todos')).toHaveText(`(${MATCHING(f)})`);
     if (!isMobile(page)) {
       await expect(page.locator('.filter[data-filter="bairro"] .filter__value')).toHaveText('2 bairros');
       await expect(page.locator('.filter[data-filter="area"] .filter__value')).toHaveText('250 a 500 m²');
     } else {
-      await expect(page.locator('.filters__badge')).toHaveText(' (3)');
+      await expect(page.locator('.filters__badge')).toHaveText(' (4)'); // tipo, bairro, vagas, área
     }
   });
 
@@ -292,7 +292,7 @@ test.describe('Filters (bairro, quartos, vagas, área)', () => {
     test.skip(!isMobile(page), 'the sheet is mobile only');
     await page.goto('/');
     await expect(page.locator('.filters__bar')).toBeHidden();
-    await pick(page, 'vagas', '5+');
+    await pick(page, 'vagas', '5');
     const n = MATCHING({ vagas: 5 });
     const apply = page.locator('.filters-sheet__apply');
     await expect(apply).toHaveText(`Ver ${n} imóveis`);
@@ -374,7 +374,7 @@ test.describe('WhatsApp button and links (spec §5, §7)', () => {
 test.describe('Responsiveness (spec §6 INP < 200 ms, lab estimate)', () => {
   // Regression guard only: INP is a field metric. Processing time is < 50 ms; the rest is the
   // next frame's rendering, which a 4× throttled desktop CPU exaggerates.
-  test('tab change, Ver mais and dots respond quickly with 4× CPU throttling', async ({ page }) => {
+  test('type change, Ver mais and dots respond quickly with 4× CPU throttling', async ({ page }) => {
     test.skip(!isMobile(page), 'measured on the mobile project');
     await page.goto('/');
     await expect(page.locator('#selecao.is-initialized')).toHaveCount(1);
@@ -386,9 +386,11 @@ test.describe('Responsiveness (spec §6 INP < 200 ms, lab estimate)', () => {
         l.getEntries().forEach((e) => (window as unknown as { __ev: number[] }).__ev.push(e.duration)),
       ).observe({ type: 'event', durationThreshold: 16, buffered: true } as PerformanceObserverInit);
     });
-    await page.getByRole('button', { name: `Cobertura (${COUNT('Cobertura')})` }).click();
+    await pick(page, 'tipo', 'cobertura');
+    await done(page);
     await page.locator('.more__btn').click();
-    await page.getByRole('button', { name: `Todos (${TOTAL})` }).click();
+    await pick(page, 'tipo', 'todos');
+    await done(page);
     await page.locator('.selecao__dot').nth(1).click();
     await page.waitForTimeout(500);
     const worst = await page.evaluate(() => Math.max(0, ...(window as unknown as { __ev: number[] }).__ev));
@@ -408,14 +410,27 @@ test.describe('Keyboard', () => {
         const cs = getComputedStyle(el);
         return { cls: el.className, ring: cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) >= 2 };
       });
-      if (/selecao__arrow|selecao__dot|wa-btn|type-tab|more__btn|card-link/.test(info.cls)) {
+      if (
+        /selecao__arrow|selecao__dot|wa-btn|filter__toggle|filters__open|more__btn|card-link/.test(info.cls)
+      ) {
         expect(info.ring, `focus ring on ${info.cls}`).toBe(true);
         seen.push(
-          info.cls.split(' ').find((c) => /selecao__arrow|selecao__dot|wa-btn|type-tab|card-link/.test(c))!,
+          info.cls
+            .split(' ')
+            .find((c) =>
+              /selecao__arrow|selecao__dot|wa-btn|filter__toggle|filters__open|card-link/.test(c),
+            )!,
         );
       }
     }
-    expect(seen).toEqual(expect.arrayContaining(['card-link', 'wa-btn', 'selecao__dot', 'type-tab']));
+    expect(seen).toEqual(
+      expect.arrayContaining([
+        'card-link',
+        'wa-btn',
+        'selecao__dot',
+        isMobile(page) ? 'filters__open' : 'filter__toggle',
+      ]),
+    );
     if (!isMobile(page)) expect(seen).toContain('selecao__arrow');
   });
 });

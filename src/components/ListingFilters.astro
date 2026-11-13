@@ -1,14 +1,29 @@
 ---
 import { Icon } from 'astro-icon/components';
 import { AREA_RANGES, MIN_OPTIONS } from '../lib/filters';
-import { bairros, type ListingView } from '../lib/listings';
+import { TABS, bairros, tabCounts, tabSlug, type ListingView } from '../lib/listings';
 
 interface Props {
   listings: ListingView[];
 }
 const { listings } = Astro.props;
+const counts = tabCounts(listings);
 
-const groups = [
+type Option = { label: string; value: string; count?: number };
+const groups: {
+  name: string;
+  title: string;
+  type: 'radio' | 'checkbox';
+  options: Option[];
+  initial?: string;
+}[] = [
+  {
+    name: 'tipo',
+    title: 'Tipo',
+    type: 'radio',
+    initial: 'todos',
+    options: TABS.map((t) => ({ label: t, value: tabSlug(t), count: counts[t] })),
+  },
   {
     name: 'bairro',
     title: 'Bairro',
@@ -39,11 +54,11 @@ const groups = [
     type: 'radio',
     options: [{ label: 'Todas', value: '' }, ...AREA_RANGES.map((r) => ({ label: r.label, value: r.value }))],
   },
-] as const;
+];
 ---
 
 <!--
-  Filters (src/scripts/listings.ts). Desktop: a row of dropdowns. Mobile: one "Filtros" pill
+  Filters (src/scripts/listings.ts), the property type first. Desktop: a row of dropdowns. Mobile: one "Filtros" pill
   that opens a bottom sheet; the same form moves into the sheet while it is open.
   Hidden without JavaScript, where every card shows.
 -->
@@ -77,9 +92,13 @@ const groups = [
                     type={g.type}
                     name={g.name}
                     value={o.value}
-                    checked={g.type === 'radio' && o.value === ''}
+                    data-label={o.label}
+                    checked={g.type === 'radio' && o.value === (g.initial ?? '')}
                   />
-                  <span>{o.label}</span>
+                  <span>
+                    {o.label}
+                    {o.count !== undefined && <span class="filter__n">({o.count})</span>}
+                  </span>
                 </label>
               ))}
             </div>

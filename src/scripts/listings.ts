@@ -1,5 +1,5 @@
 /**
- * Type tabs + filters + Ver mais (spec §4). Plain TypeScript: the CLAUDE.md fallback for Alpine,
+ * Filters (type, bairro, quartos, vagas, área) + Ver mais (spec §4). Plain TypeScript: the CLAUDE.md fallback for Alpine,
  * chosen to keep mobile main-thread time inside the Lighthouse budget.
  */
 import { track } from './track';
@@ -13,7 +13,6 @@ const grid = document.getElementById('listing-grid');
 const moreBox = document.getElementById('listings-more');
 
 if (root && grid && moreBox) {
-  const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>('.type-tab'));
   const counter = moreBox.querySelector<HTMLElement>('.more__count')!;
   const button = moreBox.querySelector<HTMLButtonElement>('.more__btn')!;
   const cols = Array.from(grid.querySelectorAll<HTMLElement>('.card-col')).map((el) => ({
@@ -24,12 +23,13 @@ if (root && grid && moreBox) {
     vagas: Number(el.dataset.vagas),
     area: Number(el.dataset.area),
   }));
-  const tabSlugs = new Set(tabs.map((t) => t.dataset.tab!));
 
   // --- Filter controls
   const box = document.getElementById('filters')!;
   const bar = document.getElementById('filters-bar')!;
   const form = document.getElementById('filters-form') as HTMLFormElement;
+  const tipoInputs = Array.from(form.querySelectorAll<HTMLInputElement>('input[name="tipo"]'));
+  const tabSlugs = new Set(tipoInputs.map((i) => i.value));
   const details = Array.from(form.querySelectorAll<HTMLDetailsElement>('details.filter'));
   const clearButtons = Array.from(root.querySelectorAll<HTMLButtonElement>('.filters__clear'));
   const empty = document.getElementById('filters-empty')!;
@@ -66,7 +66,8 @@ if (root && grid && moreBox) {
   function writeForm() {
     for (const input of form.querySelectorAll<HTMLInputElement>('input')) {
       const v = input.value;
-      if (input.name === 'bairro') input.checked = filters.bairro.includes(v);
+      if (input.name === 'tipo') input.checked = tab === v;
+      else if (input.name === 'bairro') input.checked = filters.bairro.includes(v);
       else if (input.name === 'area') input.checked = filters.area === v;
       else input.checked = String(filters[input.name as 'quartos' | 'vagas'] || '') === v;
     }
@@ -83,6 +84,7 @@ if (root && grid && moreBox) {
   }
 
   const activeCount = () =>
+    (tab !== 'todos' ? 1 : 0) +
     (filters.bairro.length ? 1 : 0) +
     (filters.quartos ? 1 : 0) +
     (filters.vagas ? 1 : 0) +
@@ -96,13 +98,13 @@ if (root && grid && moreBox) {
   const total = () => inTab().length;
   const shownCount = () => Math.min(shown, total());
 
-  /** Text shown inside a closed dropdown, e.g. "3+" or "Itaim Bibi" or "2 bairros". */
+  /** Text shown inside a closed dropdown, e.g. "Cobertura", "3+", "Itaim Bibi" or "2 bairros". */
   function summaryValue(name: string): string {
     const checked = Array.from(
       form.querySelectorAll<HTMLInputElement>(`input[name="${name}"]:checked`),
-    ).filter((i) => i.value !== '');
+    ).filter((i) => i.value !== '' && i.value !== 'todos');
     if (!checked.length) return '';
-    if (checked.length === 1) return checked[0].nextElementSibling!.textContent!.trim();
+    if (checked.length === 1) return checked[0].dataset.label!;
     return `${checked.length} bairros`;
   }
 
@@ -111,12 +113,10 @@ if (root && grid && moreBox) {
     const visible = new Set(list.slice(0, shown).map((c) => c.el));
     for (const c of cols) c.el.hidden = !visible.has(c.el);
 
-    // Tab counts follow the filters
-    for (const t of tabs) {
-      t.setAttribute('aria-pressed', String(t.dataset.tab === tab));
-      const n =
-        t.dataset.tab === 'todos' ? matching.length : matching.filter((c) => c.tipo === t.dataset.tab).length;
-      t.querySelector('.type-tab__n')!.textContent = String(n);
+    // Type counts follow the other filters
+    for (const i of tipoInputs) {
+      const n = i.value === 'todos' ? matching.length : matching.filter((c) => c.tipo === i.value).length;
+      i.nextElementSibling!.querySelector('.filter__n')!.textContent = `(${n})`;
     }
 
     const n = total();
@@ -149,31 +149,23 @@ if (root && grid && moreBox) {
     history.replaceState(history.state, '', url);
   }
 
-  for (const t of tabs) {
-    t.addEventListener('click', () => {
-      const next = t.dataset.tab!;
-      if (next === tab) return;
-      tab = next;
-      shown = pageSize; // changing tab resets the batch
-      render();
-      syncUrl();
-      track('tab_change', { tab });
-    });
-  }
-
   // Any filter change applies at once (behind the sheet on mobile) and resets the batch
   form.addEventListener('change', (e) => {
-    filters = readForm();
+    const input = e.target as HTMLInputElement;
+    if (input.name === 'tipo') tab = input.value;
+    else filters = readForm();
     shown = pageSize;
     recompute();
     render();
     syncUrl();
-    const name = (e.target as HTMLInputElement).name as keyof FilterState;
-    track('filter_change', { filter: name, value: String(filters[name]) });
+    if (input.name === 'tipo') track('tab_change', { tab });
+    else
+      track('filter_change', { filter: input.name, value: String(filters[input.name as keyof FilterState]) });
   });
 
   for (const b of clearButtons) {
     b.addEventListener('click', () => {
+      tab = 'todos';
       filters = { ...EMPTY_FILTERS, bairro: [] };
       shown = pageSize;
       writeForm();

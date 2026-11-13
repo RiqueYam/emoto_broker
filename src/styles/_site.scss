@@ -221,20 +221,7 @@ picture {
   }
 }
 
-.type-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem;
-  padding-top: 1.5rem;
-  padding-bottom: 2rem;
-  @include media-breakpoint-up(sm) {
-    gap: 0.75rem;
-    padding-bottom: 2.5rem;
-  }
-}
-
-// Pill button base shared by tabs, Ver mais and the WhatsApp button
+// Pill button base shared by the filters, Ver mais and the WhatsApp button
 .pill {
   --bs-btn-padding-x: 1rem;
   --bs-btn-padding-y: 0.5rem;
@@ -246,34 +233,6 @@ picture {
   @include media-breakpoint-up(sm) {
     --bs-btn-font-size: 0.75rem;
     --bs-btn-line-height: 1rem;
-  }
-}
-
-.type-tab {
-  --bs-btn-color: #{$muted};
-  --bs-btn-bg: transparent;
-  --bs-btn-border-color: #{$hairline};
-  --bs-btn-hover-color: #{$ink};
-  --bs-btn-hover-bg: transparent;
-  --bs-btn-hover-border-color: #{$bronze};
-  --bs-btn-active-color: #{$ink};
-  --bs-btn-active-bg: transparent;
-  --bs-btn-active-border-color: #{$bronze};
-  cursor: default;
-  &[aria-pressed='true'] {
-    --bs-btn-color: #{$paper};
-    --bs-btn-bg: #{$ink};
-    --bs-btn-border-color: #{$ink};
-    --bs-btn-hover-color: #{$paper};
-    --bs-btn-hover-bg: #{$ink};
-    --bs-btn-hover-border-color: #{$ink};
-    --bs-btn-active-color: #{$paper};
-    --bs-btn-active-bg: #{$ink};
-    --bs-btn-active-border-color: #{$ink};
-  }
-  &:focus-visible {
-    outline: 2px solid $bronze;
-    outline-offset: 2px;
   }
 }
 

@@ -2,40 +2,25 @@
 import PropertyCard from './PropertyCard.astro';
 import ListingFilters from './ListingFilters.astro';
 import { slug } from '../lib/filters';
-import { TABS, tabCounts, tabSlug, type ListingView } from '../lib/listings';
+import { tabSlug, type ListingView } from '../lib/listings';
 
 interface Props {
   listings: ListingView[];
 }
 const { listings } = Astro.props;
-const counts = tabCounts(listings);
-const countsBySlug = Object.fromEntries(TABS.map((t) => [tabSlug(t), counts[t]]));
 ---
 
 <!--
-  Tabs and Ver mais are driven by the plain script in src/scripts/listings.ts
+  Filters (type included) and Ver mais are driven by the plain script in src/scripts/listings.ts
   (the CLAUDE.md fallback for Alpine). Without JavaScript every card shows and the
-  counter and button stay hidden.
+  filters, counter and button stay hidden.
 -->
-<main class="hairline-top" id="listings" data-counts={JSON.stringify(countsBySlug)}>
+<main class="hairline-top" id="listings">
   <div class="container listings__head">
     <h2 class="section-title" id="todos-os-imoveis">
       Todos os imóveis
     </h2>
     <p class="helper-line">Selecione um imóvel para conhecer todos os detalhes.</p>
-  </div>
-
-  <div class="container type-tabs" role="group" aria-label="Filtrar imóveis por tipo e região">
-    {TABS.map((t) => (
-      <button
-        type="button"
-        class="btn pill type-tab"
-        aria-pressed={t === 'Todos' ? 'true' : 'false'}
-        data-tab={tabSlug(t)}
-      >
-        <span class="type-tab__label">{t}</span> (<span class="type-tab__n">{counts[t]}</span>)
-      </button>
-    ))}
   </div>
 
   <ListingFilters listings={listings} />
