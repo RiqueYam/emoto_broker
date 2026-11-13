@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Current site mobile, with Seleção and Ver mais</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=Playfair+Display:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1D1D1F}a:hover{color:#836731}
+</style>
+</helmet>
+<div style="width: 375px; min-height: 5200px; position: relative; background: #FFFDF9; font-family: Inter, system-ui, sans-serif; color: #1D1D1F; font-size: 16px; line-height: 24px">
+
+  <header>
+    <figure style="position: relative; margin: 0; height: 208px; background: #3A332C; overflow: hidden">
+      <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 0 24px; text-align: center"><span style="font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: #BDB3A0">[Retrato de Edu]</span></div>
+      <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 80px; background: linear-gradient(rgba(255, 253, 249, 0) 0%, #FFFDF9 100%)"></div>
+    </figure>
+    <div style="padding: 32px 20px 36px">
+      <p style="margin: 0; font-size: 24px; line-height: 32px; letter-spacing: 0.24px">EDU SOARES</p>
+      <p style="margin: 8px 0 0; font-size: 9.92px; line-height: 14.88px; letter-spacing: 3.97px; font-weight: 500; text-transform: uppercase; color: #836731">Private Broker</p>
+      <p style="margin: 24px 0 0; display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; background: #1D1D1F; color: #FFFDF9; border-radius: 9999px; font-size: 9.92px; line-height: 14.88px; letter-spacing: 1.39px; font-weight: 500; text-transform: uppercase">Corretor associado à Coelho da Fonseca</p>
+      <div style="width: 56px; height: 1px; background: #836731; margin: 40px auto 0"></div>
+      <h1 style="margin: 32px 0 0; font-family: 'Playfair Display', Georgia, serif; font-size: 32px; line-height: 40px; letter-spacing: -0.8px; font-weight: 400">Imóveis Selecionados</h1>
+      <p style="margin: 20px 0 0; font-size: 15.2px; line-height: 24.7px; color: #5F5748">Uma curadoria de imóveis exclusivos em São Paulo. Explore as oportunidades e descubra seu próximo endereço.</p>
+    </div>
+  </header>
+
+  <section style="padding: 8px 0 48px 20px; border-top: 1px solid #E4DDCF">
+    <div style="padding: 32px 20px 0 0; display: flex; justify-content: space-between; align-items: flex-end; gap: 12px">
+      <div>
+        <p style="margin: 0; font-size: 9.92px; line-height: 14.88px; letter-spacing: 3.97px; font-weight: 500; text-transform: uppercase; color: #836731">Curadoria</p>
+        <h2 style="margin: 8px 0 0; font-family: 'Playfair Display', Georgia, serif; font-size: 28px; line-height: 34px; letter-spacing: -0.6px; font-weight: 400">Seleção do Edu</h2>
+      </div>
+      
+    </div>
+    <div onTouchStart="{{pause}}" onTouchEnd="{{resume}}" style="margin-top: 24px; overflow: hidden">
+      <div style="display: flex; gap: 16px; transition: transform 600ms cubic-bezier(0.22, 0.61, 0.36, 1); transform: translateX({{offset}}px)">
+      <sc-for list="{{featured}}" as="c" hint-placeholder-count="2">
+        <div style="flex: 0 0 290px; display: flex; flex-direction: column"><a href="#" style="display: flex; flex-direction: column; text-decoration: none; color: #1D1D1F">
+          <div style="height: 193px; background: #F4ECDD; border-radius: 6px; position: relative; display: flex; align-items: center; justify-content: center">
+            <span style="position: absolute; top: 12px; left: 12px; padding: 4px 10px; background: #1D1D1F; color: #FFFDF9; border-radius: 9999px; font-size: 9.92px; line-height: 14px; letter-spacing: 1.39px; font-weight: 500; text-transform: uppercase">Destaque</span>
+            <span style="font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: #8C826F">Foto · cód. {{c.code}}</span>
+          </div>
+          <p style="margin: 14px 0 0; font-size: 12px; line-height: 19.5px; color: #5F5748">{{c.line}}</p>
+          <h3 style="margin: 10px 0 0; font-family: 'Playfair Display', Georgia, serif; font-size: 20px; line-height: 27.5px; letter-spacing: -0.5px; font-weight: 400">{{c.title}}</h3>
+          <p style="margin: 6px 0 0; font-size: 11.2px; line-height: 16.8px; letter-spacing: 2.24px; text-transform: uppercase; color: #5F5748">Código: {{c.code}}</p>
+        </a><a href="{{c.wa}}" target="_blank" rel="noopener" style="margin-top: 20px; align-self: flex-start; min-height: 44px; display: inline-flex; align-items: center; gap: 10px; padding: 0 20px 0 8px; background: #1D1D1F; color: #FFFDF9; border-radius: 9999px; text-decoration: none; font: 500 10.88px/16.32px Inter, sans-serif; letter-spacing: 1.52px; text-transform: uppercase"><span style="width: 28px; height: 28px; border-radius: 9999px; background: #308639; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 28px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" aria-hidden="true"><path d="M3 20l1.4-4.2A8 8 0 1 1 8 19.3z"/></svg></span>Consultar no WhatsApp</a></div>
+      </sc-for>
+      </div>
+    </div>
+    <div style="margin-top: 16px; padding-right: 20px; display: flex; justify-content: center; gap: 2px">
+      <sc-for list="{{dots}}" as="d" hint-placeholder-count="6">
+        <button type="button" aria-label="{{d.label}}" onClick="{{d.go}}" style="width: 28px; height: 28px; border: 0; background: transparent; padding: 0; display: flex; align-items: center; justify-content: center; cursor: pointer"><sc-if value="{{d.active}}" hint-placeholder-val="{{ false }}"><span style="display: block; width: 24px; height: 2px; background: #1D1D1F"></span></sc-if><sc-if value="{{d.inactive}}" hint-placeholder-val="{{ true }}"><span style="display: block; width: 12px; height: 2px; background: #C9BFAC"></span></sc-if></button>
+      </sc-for>
+    </div>
+  </section>
+
+  <main style="border-top: 1px solid #E4DDCF">
+    <div style="padding: 40px 20px 0">
+      <h2 style="margin: 0; font-family: 'Playfair Display', Georgia, serif; font-size: 28px; line-height: 34px; letter-spacing: -0.6px; font-weight: 400">Todos os imóveis</h2>
+      <p style="margin: 16px 0 0; font-size: 12px; line-height: 16px; letter-spacing: 2.16px; text-transform: uppercase; color: #5F5748">Selecione um imóvel para conhecer todos os detalhes.</p>
+    </div>
+    <div style="padding: 24px 20px 32px; display: flex; flex-wrap: wrap; gap: 8px" role="group" aria-label="Filtrar por tipo">
+      <sc-for list="{{tabs}}" as="t" hint-placeholder-count="5">
+        <sc-if value="{{t.on}}" hint-placeholder-val="{{ false }}"><button type="button" aria-pressed="true" onClick="{{t.pick}}" style="padding: 8px 16px; background: #1D1D1F; color: #FFFDF9; border: 0.67px solid #1D1D1F; border-radius: 9999px; font: 500 10.88px/16.32px Inter, sans-serif; letter-spacing: 1.52px; text-transform: uppercase; cursor: pointer">{{t.label}}</button></sc-if>
+        <sc-if value="{{t.off}}" hint-placeholder-val="{{ true }}"><button type="button" aria-pressed="false" onClick="{{t.pick}}" style="padding: 8px 16px; background: transparent; color: #5F5748; border: 0.67px solid #E4DDCF; border-radius: 9999px; font: 500 10.88px/16.32px Inter, sans-serif; letter-spacing: 1.52px; text-transform: uppercase; cursor: pointer">{{t.label}}</button></sc-if>
+      </sc-for>
+    </div>
+    <section style="padding: 0 20px; display: flex; flex-direction: column; gap: 48px">
+      <sc-for list="{{cards}}" as="c" hint-placeholder-count="6">
+        <div style="display: flex; flex-direction: column"><a href="#" style="display: flex; flex-direction: column; text-decoration: none; color: #1D1D1F">
+          <div style="height: 223px; background: #F4ECDD; border-radius: 6px; display: flex; align-items: center; justify-content: center"><span style="font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: #8C826F">Foto · cód. {{c.code}}</span></div>
+          <p style="margin: 15px 0 0; font-size: 12px; line-height: 19.5px; color: #5F5748">{{c.line}}</p>
+          <h3 style="margin: 16px 0 0; font-family: 'Playfair Display', Georgia, serif; font-size: 20px; line-height: 27.5px; letter-spacing: -0.5px; font-weight: 400">{{c.title}}</h3>
+          <p style="margin: 8px 0 0; font-size: 11.2px; line-height: 16.8px; letter-spacing: 2.24px; text-transform: uppercase; color: #5F5748">Código: {{c.code}}</p>
+          <span style="margin-top: 16px; display: inline-flex; align-items: center; gap: 8px; font-size: 14px; line-height: 20px"><span style="padding-bottom: 2px; border-bottom: 1px solid #1D1D1F">Clique para mais informações</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1D1D1F" stroke-width="1.5" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </a><a href="{{c.wa}}" target="_blank" rel="noopener" style="margin-top: 20px; align-self: flex-start; min-height: 44px; display: inline-flex; align-items: center; gap: 10px; padding: 0 20px 0 8px; background: #1D1D1F; color: #FFFDF9; border-radius: 9999px; text-decoration: none; font: 500 10.88px/16.32px Inter, sans-serif; letter-spacing: 1.52px; text-transform: uppercase"><span style="width: 28px; height: 28px; border-radius: 9999px; background: #308639; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 28px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" aria-hidden="true"><path d="M3 20l1.4-4.2A8 8 0 1 1 8 19.3z"/></svg></span>Consultar no WhatsApp</a></div>
+      </sc-for>
+    </section>
+    <div style="padding: 48px 20px 64px; display: flex; flex-direction: column; align-items: center; gap: 12px">
+      <span style="font-size: 12px; line-height: 16px; letter-spacing: 2.16px; text-transform: uppercase; color: #5F5748">{{shownLabel}}</span>
+      <sc-if value="{{hasMore}}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{more}}" style="min-height: 48px; padding: 0 28px; background: transparent; color: #1D1D1F; border: 0.67px solid #1D1D1F; border-radius: 9999px; font: 500 10.88px/16.32px Inter, sans-serif; letter-spacing: 1.52px; text-transform: uppercase; cursor: pointer">Ver mais imóveis</button></sc-if>
+    </div>
+  </main>
+
+  <footer style="border-top: 1px solid #E4DDCF; padding: 64px 20px 96px; text-align: center; display: flex; flex-direction: column; align-items: center">
+    <p style="margin: 0; font-size: 18px; line-height: 28px">Edu Soares <span style="color: #836731">|</span> Private Broker</p>
+    <p style="margin: 8px 0 0; font-size: 14px; line-height: 20px; color: #5F5748">Corretor associado à Coelho da Fonseca</p>
+    <p style="margin: 16px 0 0; font-size: 14px; line-height: 22.75px; color: #5F5748">Atendimento personalizado no mercado imobiliário de alto padrão.</p>
+    <div style="margin-top: 28px; display: flex; gap: 24px; font-size: 14px; line-height: 20px"><a href="#" style="text-decoration: none">WhatsApp</a><a href="#" style="text-decoration: none">Instagram</a></div>
+    <p style="margin: 32px 0 0; font-size: 12px; line-height: 16px; letter-spacing: 2.16px; text-transform: uppercase; color: #5F5748">CRECI: 310960</p>
+  </footer>
+
+  <a href="#" aria-label="Falar no WhatsApp" style="position: absolute; right: 20px; bottom: 20px; width: 56px; height: 56px; border-radius: 9999px; background: #308639; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(29, 29, 31, 0.18)"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#FCFCFC" stroke-width="1.8" aria-hidden="true"><path d="M3 20l1.4-4.2A8 8 0 1 1 8 19.3z"/></svg></a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":375,"height":5200}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { tab: 'Todos', shown: 6, i: 0, paused: false };
+  }
+  componentDidMount() {
+    let reduce = false;
+    try { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+    if (!reduce) this.timer = setInterval(() => { if (!this.state.paused) this.setState({ i: this.state.i >= 5 ? 0 : this.state.i + 1 }); }, 3500);
+  }
+  componentWillUnmount() { clearInterval(this.timer); }
+  renderVals() {
+    const raw = [
+      ['72911','Apartamento na Vila Nova Conceição','u','237','',3,3,3],
+      ['271471','Apartamento no Jardim América','u','230','',2,2,3],
+      ['456759','Apartamento no Itaim Bibi','u','559','',3,3,6],
+      ['506690','Cobertura na Vila Nova Conceição','u','324','',3,3,3],
+      ['549404','Cobertura no Itaim Bibi','u','645','',4,4,8],
+      ['617726','Apartamento na Cidade Jardim','u','328','',3,3,4],
+      ['629692','Cobertura no Itaim Bibi','u','635','',4,4,8],
+      ['649403','Cobertura na Cidade Jardim','u','1.200','',4,4,10],
+      ['668028','Apartamento na Vila Nova Conceição','u','247','',3,3,4],
+      ['669997','Casa em Condomínio na Cidade Jardim','c','700','904',4,4,10],
+      ['674482','Casa em Condomínio na Cidade Jardim','c','927','667',5,5,8],
+      ['675713','Apartamento no Itaim Bibi','u','335','',3,3,4],
+      ['676076','Apartamento no Itaim Bibi','u','285','',3,3,4],
+      ['683420','Cobertura na Cidade Jardim','u','317','',3,3,3],
+      ['684769','Casa em Condomínio no Jardim Paulistano','c','340','470',2,2,3],
+      ['687029','Apartamento na Cidade Jardim','u','174','',3,3,3],
+      ['687874','Apartamento no Alto de Pinheiros','u','205','',3,3,3],
+      ['688083','Apartamento no Panamby','u','186','',3,3,0],
+      ['688147','Apartamento na Vila Clementino','u','337','',5,4,4],
+      ['681446','Cobertura na Cidade Jardim','u','274','',3,3,3],
+      ['688939','Apartamento na Chácara Santo Antônio','u','250','',3,3,4],
+      ['668378','Apartamento no Itaim Bibi','u','152','',3,3,2],
+      ['397998','Cobertura no Panamby','u','515','',5,5,7],
+      ['682322','Cobertura no Itaim Bibi','u','246','',4,2,3],
+      ['687007','Casa em Condomínio no Jardim Paulistano','c','602','1.224',3,3,4],
+      ['75123','Cobertura no Itaim Bibi','u','289','',3,3,2],
+      ['104447','Apartamento no Itaim Bibi','u','217','',3,3,3],
+      ['687553','Casa de Vila no Brooklin','u','277','',4,4,4],
+      ['689204','Casa no Jardim Luzitânia','c','1.331','2.249',5,5,35],
+      ['666655','Casa no Alto da Boa Vista','c','600','2.296',3,3,8],
+      ['642428','Casa no Jardim Guedala','c','1.100','2.250',5,3,6],
+      ['639906','Cobertura no Campo Belo','u','500','',3,3,6],
+      ['551689','Cobertura na Aclimação','u','500','',4,4,5],
+      ['575803','Cobertura na Vila Olímpia','u','738','',5,5,8],
+      ['611364','Cobertura na Vila Olímpia','u','481','',4,4,6],
+      ['265678','Cobertura no Jardim Paulista','u','742','',4,4,8],
+      ['683029','Cobertura na Vila Nova Conceição','u','626','',4,4,5],
+      ['682796','Cobertura no Jardim Paulista','u','408','',5,4,5],
+      ['674538','Casa em Condomínio no Alphaville','c','472','490',4,4,4],
+      ['655785','Casa em Condomínio no Alphaville','c','715','993',4,4,6],
+      ['539223','Casa em Condomínio no Alphaville','c','847','1.616',5,5,8],
+      ['352080','Casa em Condomínio no Alphaville','c','1.100','2.237',4,4,9],
+      ['687002','Casa em Condomínio no Alphaville','c','700','900',4,4,6],
+      ['677355','Casa em Condomínio no Alphaville','c','750','560',4,4,8],
+      ['686950','Casa em Condomínio no Alphaville','c','745','532',4,4,6],
+      ['610082','Casa em Condomínio no Alphaville','c','1.582','2.271',5,5,15],
+      ['610407','Casa em Condomínio no Alphaville','c','1.600','2.400',7,5,6],
+      ['450742','Casa no Jardim Paulista','c','510','510',4,4,3]
+    ];
+    const cat = (t) => t.indexOf('Alphaville') >= 0 ? 'Alphaville' : t.indexOf('Cobertura') === 0 ? 'Cobertura' : t.indexOf('Apartamento') === 0 ? 'Apartamento' : 'Casa';
+    const all = raw.map((r) => {
+      const parts = r[2] === 'u' ? [r[3] + ' m² úteis'] : [r[3] + ' m² construídos', r[4] + ' m² de terreno'];
+      parts.push(r[5] + ' quartos', r[6] + ' suítes');
+      if (r[7]) parts.push(r[7] + ' vagas');
+      return { code: r[0], title: r[1], cat: cat(r[1]), line: parts.join(' · '), wa: 'https://wa.me/5511961942319?text=' + encodeURIComponent('Olá, Edu. Vi no seu site o imóvel cód. ' + r[0] + ' (' + r[1] + ') e gostaria de mais informações.') };
+    });
+    const featuredCodes = ['549404', '649403', '72911', '689204', '265678', '352080'];
+    const featured = featuredCodes.map((c) => all.find((x) => x.code === c));
+    const names = ['Todos', 'Apartamento', 'Cobertura', 'Casa', 'Alphaville'];
+    const sel = this.state.tab;
+    const tabs = names.map((n) => {
+      const count = n === 'Todos' ? all.length : all.filter((x) => x.cat === n).length;
+      return { label: n + ' (' + count + ')', on: n === sel, off: n !== sel, pick: () => this.setState({ tab: n, shown: 6 }) };
+    });
+    const list = sel === 'Todos' ? all : all.filter((x) => x.cat === sel);
+    const shown = Math.min(this.state.shown, list.length);
+    const i = this.state.i;
+    const dots = [0, 1, 2, 3, 4, 5].map((k) => ({ label: 'Ir para o imóvel ' + (k + 1), active: k === i, inactive: k !== i, go: () => this.setState({ i: k }) }));
+    return {
+      featured: featured,
+      offset: -i * 306,
+      dots: dots,
+      pause: () => this.setState({ paused: true }),
+      resume: () => this.setState({ paused: false }),
+      tabs: tabs,
+      cards: list.slice(0, shown),
+      shownLabel: 'Mostrando ' + shown + ' de ' + list.length,
+      hasMore: shown < list.length,
+      more: () => this.setState({ shown: this.state.shown + 6 })
+    };
+  }
+}
+</script>
+</body>
+</html>
