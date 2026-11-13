@@ -4,12 +4,14 @@
 
 The name now comes from `BROKER` in `src/lib/site.ts`: hero, footer, title, meta, JSON-LD, the WhatsApp messages ("Olá, Eliane."), the Seleção title ("Seleção de Eliane"), the "EE" monogram and the sharing image. Still the previous broker's, and **must be replaced before anything goes public**:
 
-- [ ] **Portrait.** `src/assets/portrait/banner-edu-soares.jpg` is Edu's photo. It appears in the hero and the sharing image, and the alt text now says "Eliane Emoto". To replace it, drop Eliane's photo at the same path (or update the import in `src/lib/portrait.ts`), adjust `object-position` in `.hero__img` if needed, then run `npx tsx scripts/make-brand-assets.ts`.
+The step-by-step order for all of this is in **`docs/next-steps.md`**.
+
+- [ ] **Top image.** Edu's portrait is no longer used. The page shows a warm-dark placeholder panel until `HERO.file` in `src/lib/site.ts` names a photo in `src/assets/hero/`. The switch was tested with a sample photo (preload, alt and crop all work). Edu's original stays in `src/assets/portrait/` until Eliane's is in; then delete it.
 - [ ] **WhatsApp number** (`BROKER.whatsapp`). Every WhatsApp button would currently send leads to Edu.
 - [ ] **CRECI** (`BROKER.creci`), shown in the footer and the metadata.
 - [ ] **Instagram** (`BROKER.instagram`).
 - [ ] **Domain** (`SITE_URL`, plus `public/robots.txt` and `site` in `astro.config.mjs`).
-- [ ] **Coelho da Fonseca broker ID.** Every `coelho_url` in `data/listings.csv` carries `?corretor=18039` (Edu's), and `src/content.config.ts` line 30 requires it. See "Changing the card link" below.
+- [ ] **Coelho da Fonseca broker ID** (`BROKER.coelhoId`, currently Edu's `18039`). Every `coelho_url` in `data/listings.csv` must contain `corretor=<id>`, or the build stops. `null` turns the check off. See "Changing the card link" below.
 - [ ] **Listings.** The 48 listings and photos are Edu's portfolio. Confirm whether Eliane's are the same.
 - [ ] **Wording.** "Corretor associado à Coelho da Fonseca" (hero pill, footer, descriptions) uses the masculine "corretor". "Corretora associada" would be the feminine form. The copy is unchanged until you confirm which Eliane uses. Same for "Seleção de Eliane" (kept neutral instead of "da Eliane").
 - [ ] **Live-page comparison.** `tests/visual.spec.ts` still compares against Edu's live page and skips the name line. Point `LIVE` elsewhere or drop that test once the old page is retired.
@@ -18,7 +20,7 @@ The name now comes from `BROKER` in `src/lib/site.ts`: hero, footer, title, meta
 
 The whole card (photo, specs, title, code and "Clique para mais informações") is one link, with the WhatsApp button as a separate link below it. That link is built from the `coelho_url` column:
 
-1. **Different URL per listing:** edit `coelho_url` in `data/listings.csv`. If the new URLs don't contain `corretor=18039`, change or remove the check in `src/content.config.ts` line 30, or the build fails on purpose.
+1. **Different URL per listing:** edit `coelho_url` in `data/listings.csv`. If the new URLs aren't Coelho links with `corretor=<BROKER.coelhoId>`, set `BROKER.coelhoId` in `src/lib/site.ts` to the right ID, or to `null` to turn the check off. Otherwise the build fails on purpose.
 2. **One rule for every card** (e.g. a new site, or another broker ID): change where the URL is mapped, `coelhoUrl: l.coelho_url` in `src/lib/listings.ts` line 49. It feeds both list cards (`src/components/PropertyCard.astro` line 26) and Seleção cards (`src/components/Selecao.astro` line 41). Renaming `coelhoUrl` to something neutral is optional.
 3. **Only the "Clique para mais informações" text should go elsewhere,** with the rest of the card still opening Coelho: the text sits inside the card link, and links can't be nested. Move `<span class="card-more">` (`PropertyCard.astro` lines 61–64) out of the card `<a>`, make it its own `<a href=…>`, and keep the `.card-more` styles. The hover underline rule `.card-link:hover .card-more` in `src/styles/_site.scss` would need to become `.card-more:hover`. The test "never nested in a link" in `tests/behaviour.spec.ts` guards this.
 
